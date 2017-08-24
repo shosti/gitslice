@@ -8,5 +8,10 @@
   },
   "author": "",
   "license": "ISC",
-  "dependencies": {}
+  "dependencies": {
+    "child-process-promise": "^2.2.1",
+    "minimist": "^1.2.0",
+    "mz": "^2.6.0",
+    "nodegit": "^0.20.1"
+  }
 }
