@@ -17,7 +17,7 @@ async function initializeFolder(repoPath, folderPaths, localFolderName) {
     const folderRepo = await Git.Repository.init(folderRepoPath, 0);
 
     for (let p of folderPaths) {
-      const allFiles = getAllFiles(path.resolve(mainRepoPath, p));
+      const allFiles = await getAllFiles(path.resolve(mainRepoPath, p));
       for (let sourceFile of allFiles) {
         if (!await Git.Ignore.pathIsIgnored(mainRepo, sourceFile)) {
           const desFile = sourceFile.replace(mainRepoPath, folderRepoPath);

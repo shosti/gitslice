@@ -8,11 +8,10 @@ const CONFIG_FILENAME = "git-folder-sync.json";
 async function updateFolderFromMain() {
   try {
     const config = await fs.readJson(CONFIG_FILENAME);
-    const mainRepo = await Git.Repository.open(
-      path.resolve(__dirname, config.mainRepoPath)
-    );
+    const mainRepoPath = path.resolve(__dirname, config.mainRepoPath)
+    const mainRepo = await Git.Repository.open(mainRepoPath);
     const folderRepo = await Git.Repository.open(__dirname);
-    for (let file of getAllFiles(__dirname)) {
+    for (let file of (await getAllFiles(__dirname))) {
       if (
         !await Git.Ignore.pathIsIgnored(folderRepo, file) &&
         path.relative(__dirname, file) !== ".gitignore"
@@ -22,15 +21,12 @@ async function updateFolderFromMain() {
     }
     // fileDelCmds.push(`find . -type d -empty -delete`);
     for (let p of config.folders) {
-      const allFiles = getAllFiles(
-        path.resolve(__dirname, config.mainRepoPath, p)
+      const allFiles = await getAllFiles(
+        path.resolve(mainRepoPath, p)
       );
       for (let sourceFile of allFiles) {
         if (!await Git.Ignore.pathIsIgnored(mainRepo, sourceFile)) {
-          const desFile = sourceFile.replace(
-            path.resolve(__dirname, config.mainRepoPath),
-            __dirname
-          );
+          const desFile = sourceFile.replace(mainRepoPath, __dirname);
           await fs.ensureFile(desFile);
           await fs.copy(sourceFile, desFile);
         }

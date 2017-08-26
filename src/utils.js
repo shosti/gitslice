@@ -1,15 +1,24 @@
 const fs = require("fs-extra");
 const path = require("path");
 
-function getAllFiles(dir) {
-  return fs.readdirSync(dir)
-    .reduce(
-      (files, file) =>
-        fs.statSync(path.join(dir, file)).isDirectory()
-          ? files.concat(getAllFiles(path.join(dir, file)))
-          : files.concat(path.join(dir, file)),
-      []
-    );
+async function getAllFiles(dir) {
+  try {
+    let results = [];
+    const list = await fs.readdir(dir);
+    if (!list.length) return results
+    for (let file of list) {
+      file = path.resolve(dir, file);
+      const stat = await fs.stat(file);
+      if (stat && stat.isDirectory()) {
+        results = results.concat(await getAllFiles(file));
+      } else {
+        results.push(file);
+      }
+    }
+    return results;
+  } catch (e) {
+    console.log(e);
+  }
 }
 
 module.exports = {

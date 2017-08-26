@@ -21,7 +21,7 @@ async function updateMainFromFolder(commitMsg) {
     await mainRepo.setHead(`refs/heads/${BRANCH_NAME}`)
 
     for (let p of config.folders) {
-      for (let file of getAllFiles(path.resolve(mainRepoPath, p))) {
+      for (let file of (await getAllFiles(path.resolve(mainRepoPath, p)))) {
         if (
           !await Git.Ignore.pathIsIgnored(mainRepo, file) &&
           path.relative(mainRepoPath, file) !== ".gitignore"
@@ -32,7 +32,7 @@ async function updateMainFromFolder(commitMsg) {
     }
 
     for (let p of config.folders) {
-      const allFiles = getAllFiles(path.resolve(__dirname, p));
+      const allFiles = await getAllFiles(path.resolve(__dirname, p));
       for (let sourceFile of allFiles) {
         if (!await Git.Ignore.pathIsIgnored(folderRepo, sourceFile)) {
           const desFile = sourceFile.replace(__dirname, mainRepoPath);
