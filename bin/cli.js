@@ -5,7 +5,7 @@ const initializeFolder = require("../lib/init.js");
 const updateFolderFromMain = require("../lib/pull.js");
 const updateMainFromFolder = require("../lib/push.js");
 
-async function parseArgs(currentDir, command, args) {
+async function parseArgs(currentDir, command, args, argv) {
   switch (command) {
     case "init":
       // git-fork init [repo path] [first/folder/path/from/root] [second/folder/path/from/root] [local folder name]
@@ -31,13 +31,14 @@ async function parseArgs(currentDir, command, args) {
       break;
     case "pull":
       // git-fork pull
-      updateFolderFromMain(currentDir);
+      await updateFolderFromMain(currentDir);
       break;
     case "push":
-      // git-fork push [branch name] [commit message]
-      const [commitMsg, branchName] = args;
-      if (commitMsg && branchName) {
-        updateMainFromFolder(currentDir, commitMsg, branchName);
+      // git-fork push [branch name] -m "[commit message]"
+      const [ branchName ] = args;
+      const commitMsg = argv.m
+      if (branchName && commitMsg) {
+        await updateMainFromFolder(currentDir, branchName, commitMsg);
       } else {
         console.log("Error: Invalid arguments");
       }
@@ -49,4 +50,4 @@ async function parseArgs(currentDir, command, args) {
 
 const { _: [command, ...args] } = argv;
 const dir = process.cwd();
-parseArgs(dir, command, args);
+parseArgs(dir, command, args, argv);

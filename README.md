@@ -21,7 +21,7 @@ If `test-repo/src/frontend/public` is updated, this command can be used to sync 
 ### push
 ```sh
 $ cd frontend-public
-$ git-fork push [commit message] [branch message]
-$ git-fork push updated-photos photos
+$ git-fork push [branch name] -m "[commit message]"
+$ git-fork push updated-photos -m "changed public photos"
 ```
-If `frontend-public/src/frontend/public` is updated, this command can be used to create a new branch names `photos` in `test-repo` and sync the changes made in `frontend-public/src/frontend/public` to that branch. Later, a pull request can be created to merge these changes with the master branch.
+If `frontend-public/src/frontend/public` is updated, this command can be used to create a new branch named `updated-photos` in `test-repo` and sync the changes made in `frontend-public/src/frontend/public` to that branch. Later, a pull request can be created to merge these changes with the master branch.
