@@ -26,7 +26,9 @@ async function parseArgs(currentDir, command, args, argv) {
         );
         console.log(`Successfully forked into ${forkedRepo}`);
       } else {
-        console.log("Error: Invalid arguments");
+        console.log(
+          "Invalid arguments, the arguments should follow the following format: git-fork init [relative path to repo] [first/folder/path/from/root] [second/folder/path/from/root] [name of new folder]"
+        );
       }
       break;
     case "pull":
@@ -35,12 +37,14 @@ async function parseArgs(currentDir, command, args, argv) {
       break;
     case "push":
       // git-fork push [branch name] -m "[commit message]"
-      const [ branchName ] = args;
-      const commitMsg = argv.m
+      const [branchName] = args;
+      const commitMsg = argv.m;
       if (branchName && commitMsg) {
         await updateMainFromFolder(currentDir, branchName, commitMsg);
       } else {
-        console.log("Error: Invalid arguments");
+        console.log(
+          `Invalid arguments, the arguments should follow the following format: git-fork push [branch name] -m "[commit message]"`
+        );
       }
       break;
     default:
