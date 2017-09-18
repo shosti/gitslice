@@ -7,7 +7,7 @@
     "test": "jest"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "bin": {
     "git-fork": "./bin/cli.js"
   },
