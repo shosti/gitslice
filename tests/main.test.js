@@ -5,7 +5,7 @@ const Git = require("nodegit");
 const path = require("path");
 const fs = require("fs-extra");
 
-const CONFIG_FILENAME = "git-fork.json";
+const CONFIG_FILENAME = "git-slice.json";
 
 const mainRepoPath = path.resolve(__dirname, "./repos/main");
 const folderRepoPath = path.resolve(__dirname, "./repos/folder");

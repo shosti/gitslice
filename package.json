@@ -1,5 +1,5 @@
 {
-  "name": "git-fork",
+  "name": "git-slice",
   "version": "1.0.0",
   "description": "",
   "main": "lib/index.js",
@@ -9,7 +9,7 @@
   "author": "",
   "license": "MIT",
   "bin": {
-    "git-fork": "./bin/cli.js"
+    "git-slice": "./bin/cli.js"
   },
   "dependencies": {
     "fs-extra": "^4.0.1",
