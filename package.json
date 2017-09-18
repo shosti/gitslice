@@ -1,0 +1,22 @@
+{
+  "name": "git-fork",
+  "version": "1.0.0",
+  "description": "",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "",
+  "license": "ISC",
+  "bin": {
+    "git-fork": "./bin/cli.js"
+  },
+  "dependencies": {
+    "fs-extra": "^4.0.1",
+    "minimist": "^1.2.0",
+    "nodegit": "^0.20.1"
+  },
+  "devDependencies": {
+    "jest": "^21.0.1"
+  }
+}
