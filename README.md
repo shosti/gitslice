@@ -1,8 +1,9 @@
 # git-slice
+[![npm version](https://badge.fury.io/js/git-slice.svg)](https://badge.fury.io/js/git-slice) [![npm](https://img.shields.io/npm/dt/git-slice.svg)](https://www.npmjs.com/package/git-slice)
 
 This utility can be used to take out foler from a git repository, fork it into a new git repository and eventually provide commands to sync changes between both the repositories.
 
-# Commands
+## Commands
 ### init
 ```sh
 $ git-slice init [relative path to repo] [first/folder/path/from/root] [second/folder/path/from/root] [name of new folder]
