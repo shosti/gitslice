@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 const argv = require("minimist")(process.argv.slice(2));
 const path = require("path");
-const initializeFolder = require("../lib/init.js");
-const updateFolderFromMain = require("../lib/pull.js");
-const updateMainFromFolder = require("../lib/push.js");
-const showHelp = require("../lib/help");
+const initializeFolder = require("../lib").init;
+const updateFolderFromMain = require("../lib").pull;
+const updateMainFromFolder = require("../lib").push;
+const showHelp = require("../lib").help;
 
 async function parseArgs(currentDir, command, args, argv) {
   switch (command) {
