@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 const argv = require("minimist")(process.argv.slice(2));
 const path = require("path");
-const initializeFolder = require("../lib/init.js");
-const updateFolderFromMain = require("../lib/pull.js");
-const updateMainFromFolder = require("../lib/push.js");
+const initializeFolder = require("../lib").init;
+const updateFolderFromMain = require("../lib").pull;
+const updateMainFromFolder = require("../lib").push;
+const showHelp = require("../lib").help;
 
 async function parseArgs(currentDir, command, args, argv) {
   switch (command) {
@@ -48,10 +49,14 @@ async function parseArgs(currentDir, command, args, argv) {
       }
       break;
     default:
-    // showHelp();
+      showHelp();
   }
 }
 
-const { _: [command, ...args] } = argv;
-const dir = process.cwd();
-parseArgs(dir, command, args, argv);
+const { _: [command, ...args], help } = argv;
+if (help) {
+  showHelp();
+} else {
+  const dir = process.cwd();
+  parseArgs(dir, command, args, argv);
+}
