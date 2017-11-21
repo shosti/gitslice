@@ -1,19 +1,21 @@
 #!/usr/bin/env node
 const argv = require("minimist")(process.argv.slice(2));
 const path = require("path");
-const initializeFolder = require("../lib").init;
-const updateFolderFromMain = require("../lib").pull;
-const updateMainFromFolder = require("../lib").push;
-const showHelp = require("../lib").help;
+const initializeFolder = require("../lib/cmds/init");
+const updateFolderFromMain = require("../lib/cmds/pull");
+const updateMainFromFolder = require("../lib/cmds/push");
+const showHelp = require("../lib/help");
+
+const invalidCmdError =
+  "Invalid arguments, following are the usage details of this command:";
 
 async function parseArgs(currentDir, command, args, argv) {
   switch (command) {
     case "init":
-      // git-slice init [repo path] [first/folder/path/from/root] [second/folder/path/from/root] [local folder name]
-      if (args.length > 2) {
-        const repo = args[0];
-        const folders = args.slice(1, -1);
-        const forkedRepo = args[args.length - 1];
+      if (argv.repo && argv.folder && args.length) {
+        const repo = argv.repo;
+        const folders = argv.folder;
+        const forkedRepo = args[0];
         const repoName = path.basename(repo);
         const forkedName = path.basename(forkedRepo);
         const folderPaths = folders.map(fd => `${repoName}/${fd}`);
@@ -27,25 +29,21 @@ async function parseArgs(currentDir, command, args, argv) {
         );
         console.log(`Successfully forked into ${forkedRepo}`);
       } else {
-        console.log(
-          "Invalid arguments, the arguments should follow the following format: git-slice init [relative path to repo] [first/folder/path/from/root] [second/folder/path/from/root] [name of new folder]"
-        );
+        console.log(invalidCmdError);
+        showHelp(command);
       }
       break;
     case "pull":
-      // git-slice pull
       await updateFolderFromMain(currentDir);
       break;
     case "push":
-      // git-slice push [branch name] -m "[commit message]"
-      const [branchName] = args;
+      const branchName = argv.branch;
       const commitMsg = argv.m;
       if (branchName && commitMsg) {
         await updateMainFromFolder(currentDir, branchName, commitMsg);
       } else {
-        console.log(
-          `Invalid arguments, the arguments should follow the following format: git-slice push [branch name] -m "[commit message]"`
-        );
+        console.log(invalidCmdError);
+        showHelp(command);
       }
       break;
     default:
@@ -55,7 +53,7 @@ async function parseArgs(currentDir, command, args, argv) {
 
 const { _: [command, ...args], help } = argv;
 if (help) {
-  showHelp();
+  showHelp(command);
 } else {
   const dir = process.cwd();
   parseArgs(dir, command, args, argv);

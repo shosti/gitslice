@@ -1,11 +1,10 @@
-const initializeFolder = require("../lib/init.js");
-const updateFolderFromMain = require("../lib/pull.js");
-const updateMainFromFolder = require("../lib/push.js");
+const initializeFolder = require("../lib/cmds/init.js");
+const updateFolderFromMain = require("../lib/cmds/pull.js");
+const updateMainFromFolder = require("../lib/cmds/push.js");
+const { CONFIG_FILENAME } = require("../lib/constants");
 const Git = require("nodegit");
 const path = require("path");
 const fs = require("fs-extra");
-
-const CONFIG_FILENAME = "git-slice.json";
 
 const mainRepoPath = path.resolve(__dirname, "./repos/main");
 const folderRepoPath = path.resolve(__dirname, "./repos/folder");
@@ -144,12 +143,16 @@ describe("Folder repo is synced properly with main repo", () => {
   });
 
   test("deleted files in the main repo are properly synced to the folder repo", async () => {
-    const testFile1 = (await fs.readdir(path.resolve(mainRepoPath, folderPaths[0])))[0]
-    const testFile1Path = path.resolve(mainRepoPath, folderPaths[0], testFile1)
-    const testFile2 = (await fs.readdir(path.resolve(mainRepoPath, folderPaths[1])))[0]
-    const testFile2Path = path.resolve(mainRepoPath, folderPaths[1], testFile2)
-    await fs.remove(testFile1Path)
-    await fs.remove(testFile2Path)
+    const testFile1 = (await fs.readdir(
+      path.resolve(mainRepoPath, folderPaths[0])
+    ))[0];
+    const testFile1Path = path.resolve(mainRepoPath, folderPaths[0], testFile1);
+    const testFile2 = (await fs.readdir(
+      path.resolve(mainRepoPath, folderPaths[1])
+    ))[0];
+    const testFile2Path = path.resolve(mainRepoPath, folderPaths[1], testFile2);
+    await fs.remove(testFile1Path);
+    await fs.remove(testFile2Path);
 
     const signature = mainRepo.defaultSignature();
     let index = await mainRepo.refreshIndex();
@@ -171,28 +174,22 @@ describe("Folder repo is synced properly with main repo", () => {
     await updateFolderFromMain(folderRepoPath);
 
     expect(
-      await fs.exists(
-        testFile1Path.replace(mainRepoPath, folderRepoPath)
-      )
+      await fs.exists(testFile1Path.replace(mainRepoPath, folderRepoPath))
     ).toBe(false);
     expect(
-      await fs.exists(
-        testFile2Path.replace(mainRepoPath, folderRepoPath)
-      )
+      await fs.exists(testFile2Path.replace(mainRepoPath, folderRepoPath))
     ).toBe(false);
 
     const expectedCommitMessage = (await mainRepo.getMasterCommit()).sha();
     const outputCommitMessage = (await folderRepo.getMasterCommit()).message();
     expect(outputCommitMessage).toBe(expectedCommitMessage);
-
   });
 });
 
 describe("Main repo is synced properly with folder repo", () => {
   test("added files in folder repo are properly synced to the main folder", async () => {
-
-    const branchName  = 'testBranch1';
-    const commitMsg = 'added some files'
+    const branchName = "testBranch1";
+    const commitMsg = "added some files";
 
     const newBranch = await folderRepo.createBranch(
       branchName,
@@ -268,9 +265,8 @@ describe("Main repo is synced properly with folder repo", () => {
   });
 
   test("deleted files in the folder repo are properly synced to the main repo", async () => {
-
-    const branchName  = 'testBranch2';
-    const commitMsg = 'deleted some files'
+    const branchName = "testBranch2";
+    const commitMsg = "deleted some files";
 
     const newBranch = await folderRepo.createBranch(
       branchName,
@@ -279,13 +275,24 @@ describe("Main repo is synced properly with folder repo", () => {
     );
     await folderRepo.checkoutBranch(branchName);
 
-
-    const testFile1 = (await fs.readdir(path.resolve(folderRepoPath, folderPaths[0])))[0]
-    const testFile1Path = path.resolve(folderRepoPath, folderPaths[0], testFile1)
-    const testFile2 = (await fs.readdir(path.resolve(folderRepoPath, folderPaths[1])))[0]
-    const testFile2Path = path.resolve(folderRepoPath, folderPaths[1], testFile2)
-    await fs.remove(testFile1Path)
-    await fs.remove(testFile2Path)
+    const testFile1 = (await fs.readdir(
+      path.resolve(folderRepoPath, folderPaths[0])
+    ))[0];
+    const testFile1Path = path.resolve(
+      folderRepoPath,
+      folderPaths[0],
+      testFile1
+    );
+    const testFile2 = (await fs.readdir(
+      path.resolve(folderRepoPath, folderPaths[1])
+    ))[0];
+    const testFile2Path = path.resolve(
+      folderRepoPath,
+      folderPaths[1],
+      testFile2
+    );
+    await fs.remove(testFile1Path);
+    await fs.remove(testFile2Path);
 
     const signature = mainRepo.defaultSignature();
     let index = await folderRepo.refreshIndex();
@@ -307,20 +314,14 @@ describe("Main repo is synced properly with folder repo", () => {
     await updateMainFromFolder(folderRepoPath, branchName, commitMsg);
 
     expect(
-      await fs.exists(
-        testFile1Path.replace(folderRepoPath, mainRepoPath)
-      )
+      await fs.exists(testFile1Path.replace(folderRepoPath, mainRepoPath))
     ).toBe(false);
     expect(
-      await fs.exists(
-        testFile2Path.replace(folderRepoPath, mainRepoPath)
-      )
+      await fs.exists(testFile2Path.replace(folderRepoPath, mainRepoPath))
     ).toBe(false);
 
     const expectedCommitMessage = (await mainRepo.getMasterCommit()).sha();
     const outputCommitMessage = (await folderRepo.getMasterCommit()).message();
     expect(outputCommitMessage).toBe(expectedCommitMessage);
-
   });
 });
-
