@@ -14,6 +14,7 @@ const folderPaths = ["public", "src/reducers"]; // to be modified with the repo
 const folderPathRegExp = new RegExp(folderPaths.join("|^"));
 let mainRepo;
 let folderRepo;
+const branchName = "master";
 
 beforeAll(async done => {
   await Git.Clone.clone(repoToClone, mainRepoPath);
@@ -21,7 +22,7 @@ beforeAll(async done => {
 });
 
 beforeEach(async done => {
-  await initializeFolder(mainRepoPath, folderPaths, folderRepoPath);
+  await initializeFolder(mainRepoPath, folderPaths, folderRepoPath, branchName);
   mainRepo = await Git.Repository.open(mainRepoPath);
   folderRepo = await Git.Repository.open(folderRepoPath);
   done();
@@ -67,7 +68,8 @@ describe("Folder repo is forked correcly", () => {
   test("config file is created correctly", async () => {
     const expected = {
       mainRepoPath: path.relative(folderRepoPath, mainRepoPath),
-      folders: folderPaths
+      folders: folderPaths,
+      branch: branchName
     };
     expect(
       await fs.readJson(path.resolve(folderRepoPath, CONFIG_FILENAME))

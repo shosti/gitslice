@@ -15,6 +15,7 @@ async function parseArgs(currentDir, command, args, argv) {
         const folders = Array.isArray(argv.folder)
           ? argv.folder
           : [argv.folder];
+        const branchName = argv.branch || "master";
         const forkedRepo = args[0];
         const repoName = path.basename(repo);
         const forkedName = path.basename(forkedRepo);
@@ -25,7 +26,8 @@ async function parseArgs(currentDir, command, args, argv) {
         await initializeFolder(
           path.resolve(currentDir, repo),
           folders,
-          path.resolve(currentDir, forkedRepo)
+          path.resolve(currentDir, forkedRepo),
+          branchName
         );
         console.log(`Successfully forked into ${forkedRepo}`);
       } else {
