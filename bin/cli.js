@@ -5,16 +5,16 @@ const initializeFolder = require("../lib/cmds/init");
 const updateFolderFromMain = require("../lib/cmds/pull");
 const updateMainFromFolder = require("../lib/cmds/push");
 const showHelp = require("../lib/help");
-
-const invalidCmdError =
-  "Invalid arguments, following are the usage details of this command:";
+const { INVALID_ARG_MSG } = require("../lib/constants");
 
 async function parseArgs(currentDir, command, args, argv) {
   switch (command) {
     case "init":
       if (argv.repo && argv.folder && args.length) {
         const repo = argv.repo;
-        const folders = argv.folder;
+        const folders = Array.isArray(argv.folder)
+          ? argv.folder
+          : [argv.folder];
         const forkedRepo = args[0];
         const repoName = path.basename(repo);
         const forkedName = path.basename(forkedRepo);
@@ -29,7 +29,7 @@ async function parseArgs(currentDir, command, args, argv) {
         );
         console.log(`Successfully forked into ${forkedRepo}`);
       } else {
-        console.log(invalidCmdError);
+        console.log(INVALID_ARG_MSG);
         showHelp(command);
       }
       break;
@@ -42,7 +42,7 @@ async function parseArgs(currentDir, command, args, argv) {
       if (branchName && commitMsg) {
         await updateMainFromFolder(currentDir, branchName, commitMsg);
       } else {
-        console.log(invalidCmdError);
+        console.log(INVALID_ARG_MSG);
         showHelp(command);
       }
       break;
