@@ -22,7 +22,11 @@ beforeAll(async done => {
 });
 
 beforeEach(async done => {
-  const initCmd = `init ${folderRepoRelativePath} --repo ${mainRepoRelativePath} --folder ${folderPaths[0]} --folder ${folderPaths[1]} --branch ${branchName}`;
+  const initCmd = `init ${folderRepoRelativePath} --repo ${
+    mainRepoRelativePath
+  } --folder ${folderPaths[0]} --folder ${folderPaths[1]} --branch ${
+    branchName
+  }`;
   await parseArgsAndExecute(__dirname, initCmd.split(" "));
   mainRepo = await Git.Repository.open(mainRepoPath);
   folderRepo = await Git.Repository.open(folderRepoPath);
@@ -241,7 +245,7 @@ describe("Main repo is synced properly with folder repo", () => {
       oid,
       [parent]
     );
-    const pushCmd = `push --branch ${branchName} -m ${commitMsg}`;
+    const pushCmd = `push --branch ${branchName} --message ${commitMsg}`;
     await parseArgsAndExecute(folderRepoPath, pushCmd.split(" "));
 
     expect(
@@ -315,7 +319,7 @@ describe("Main repo is synced properly with folder repo", () => {
       oid,
       [parent]
     );
-    const pushCmd = `push --branch ${branchName} -m ${commitMsg}`;
+    const pushCmd = `push --branch ${branchName} --message ${commitMsg}`;
     await parseArgsAndExecute(folderRepoPath, pushCmd.split(" "));
 
     expect(
