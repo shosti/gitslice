@@ -74,7 +74,8 @@ describe("Folder repo is forked correcly", () => {
     const expected = {
       mainRepoPath: path.relative(folderRepoPath, mainRepoPath),
       folders: folderPaths,
-      branch: branchName
+      branch: branchName,
+      branchInMain: {}
     };
     expect(
       await fs.readJson(path.resolve(folderRepoPath, CONFIG_FILENAME))
