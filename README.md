@@ -4,7 +4,7 @@
 This utility can be used to take out foler from a git repository, fork it into a new git repository and eventually provide commands to sync changes between both the repositories.
 
 ## Commands
-### git-slice init 
+### git-slice init
 
 #### Optiions
  Option        | Input          | Required | Allow Multiple |
@@ -18,7 +18,7 @@ This utility can be used to take out foler from a git repository, fork it into a
 $ git-slice init frontent-public --repo ./../main-repo --folder src/frontend/public --folder src/frontend/Components/Login --branch develop
 ```  
 
-This command creates a new folder in the current directory and initiates a new git repository in it. It this case it will copy all the content from `main-repo/src/frontend/public` and `main-repo/src/frontend/Components/Login`, and places it in `frontend-public/src/frontend/public` and `frontend-public/src/frontend/Components/Login` respectively. In addition, this command also creates a config file `frontend-public/git-slice.json` to store configuration details.
+This command creates a new folder in the current directory and initiates a new git repository in it. In this case it will copy all the content from `main-repo/src/frontend/public` and `main-repo/src/frontend/Components/Login`, and places it in `frontend-public/src/frontend/public` and `frontend-public/src/frontend/Components/Login` respectively. In addition, this command also creates a config file `frontend-public/git-slice.json` to store configuration details.
 
 
 ### git-slice pull
@@ -36,8 +36,8 @@ $ cd frontend-public
 $ git-slice push --branch updated-photos -message "changed public photos"
 ```
 
-#### Optiions
- Option        | Input          | Required 
+#### Options
+ Option        | Input          | Required
 | :-------------: |:-------------:|:-----:|
 | --branch | Name of the branch to be created in the main git repository while pushing | YES |
 | --message |  Commit mesasge used to commit changes in the main git reposirory | YES |
