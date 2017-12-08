@@ -1,10 +1,12 @@
 # git-slice
 [![npm version](https://badge.fury.io/js/git-slice.svg)](https://badge.fury.io/js/git-slice) [![npm](https://img.shields.io/npm/dt/git-slice.svg)](https://www.npmjs.com/package/git-slice)
 
+## Please be aware that one of git-slice dependencies `nodegit` won't be able to install if you have `Node 9.x` installed on your machine, this problem is related specifically to this dependencie, and untill it isn't solved we recomend you to install `Node 8.x` instead.
+
 This utility can be used to take out foler from a git repository, fork it into a new git repository and eventually provide commands to sync changes between both the repositories.
 
 ## Commands
-### git-slice init 
+### git-slice init
 
 #### Optiions
  Option        | Input          | Required | Allow Multiple |
@@ -37,7 +39,7 @@ $ git-slice push --branch updated-photos -message "changed public photos"
 ```
 
 #### Optiions
- Option        | Input          | Required 
+ Option        | Input          | Required
 | :-------------: |:-------------:|:-----:|
 | --branch | Name of the branch to be created in the main git repository while pushing | YES |
 | --message |  Commit mesasge used to commit changes in the main git reposirory | YES |
