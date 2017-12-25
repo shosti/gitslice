@@ -17,16 +17,15 @@ let folderRepo;
 const branchName = "master";
 
 beforeAll(async done => {
+  jest.setTimeout(10000);
   await Git.Clone.clone(repoToClone, mainRepoPath);
   done();
 });
 
 beforeEach(async done => {
-  const initCmd = `init ${folderRepoRelativePath} --repo ${
-    mainRepoRelativePath
-  } --folder ${folderPaths[0]} --folder ${folderPaths[1]} --branch ${
-    branchName
-  }`;
+  const initCmd = `init ${folderRepoRelativePath} --repo ${mainRepoRelativePath} --folder ${
+    folderPaths[0]
+  } --folder ${folderPaths[1]} --branch ${branchName}`;
   await parseArgsAndExecute(__dirname, initCmd.split(" "));
   mainRepo = await Git.Repository.open(mainRepoPath);
   folderRepo = await Git.Repository.open(folderRepoPath);
