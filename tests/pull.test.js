@@ -3,6 +3,7 @@ const { CONFIG_FILENAME } = require("../lib/constants");
 const Git = require("nodegit");
 const path = require("path");
 const fs = require("fs-extra");
+const { getCurBranch } = require("../lib/utils");
 
 const mainRepoRelativePath = "./repos/pull/main";
 const folderRepoRelativePath = "./repos/pull/folder";
@@ -23,11 +24,9 @@ beforeAll(async done => {
 });
 
 beforeEach(async done => {
-  const initCmd = `init ${folderRepoRelativePath} --repo ${
-    mainRepoRelativePath
-  } --folder ${folderPaths[0]} --folder ${folderPaths[1]} --branch ${
-    branchName
-  }`;
+  const initCmd = `init ${folderRepoRelativePath} --repo ${mainRepoRelativePath} --folder ${
+    folderPaths[0]
+  } --folder ${folderPaths[1]} --branch ${branchName}`;
   await parseArgsAndExecute(__dirname, initCmd.split(" "));
   mainRepo = await Git.Repository.open(mainRepoPath);
   folderRepo = await Git.Repository.open(folderRepoPath);
@@ -152,5 +151,18 @@ describe("Folder repo is synced properly with main repo", () => {
     const expectedCommitMessage = (await mainRepo.getMasterCommit()).sha();
     const outputCommitMessage = (await folderRepo.getMasterCommit()).message();
     expect(outputCommitMessage).toBe(expectedCommitMessage);
+  });
+
+  test("checkouts to the master branch before pulling", async () => {
+    let branchName = "pull-test-branch";
+    await folderRepo.createBranch(
+      branchName,
+      (await folderRepo.getMasterCommit()).sha(),
+      0 // gives error if the branch already exists
+    );
+    await folderRepo.checkoutBranch(branchName);
+    await folderRepo.setHead(`refs/heads/${branchName}`);
+    await parseArgsAndExecute(folderRepoPath, ["pull"]);
+    expect(await getCurBranch(folderRepo)).toBe("master");
   });
 });
