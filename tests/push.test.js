@@ -46,7 +46,7 @@ afterAll(async done => {
 
 describe("Main repo is synced properly with folder repo", () => {
   test("added files in folder repo are properly synced to the main folder", async () => {
-    const branchName = "testBranch1";
+    const branchName = "test-branch-1";
     const commitMsg = "added some files";
 
     const newBranch = await folderRepo.createBranch(
@@ -124,7 +124,7 @@ describe("Main repo is synced properly with folder repo", () => {
   });
 
   test("deleted files in the folder repo are properly synced to the main repo", async () => {
-    const branchName = "testBranch2";
+    const branchName = "test-branch-2";
     const commitMsg = "deleted some files";
 
     const newBranch = await folderRepo.createBranch(
@@ -186,7 +186,7 @@ describe("Main repo is synced properly with folder repo", () => {
   });
 
   test("properly updates if the branch already exists in the main repo", async () => {
-    const branchName = "testBranch3";
+    const branchName = "test-branch-3";
     const commitMsg = "added some files";
 
     const newBranch = await folderRepo.createBranch(
@@ -305,7 +305,7 @@ describe("Main repo is synced properly with folder repo", () => {
   });
 
   test("properly store the mapping of pushed branches", async () => {
-    const branchName = "testBranch4";
+    const branchName = "test-branch-4";
     const folderBranchName = "helloBranch";
     const commitMsg = "deleted some files";
 
