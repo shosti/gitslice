@@ -4,8 +4,8 @@ const Git = require("nodegit");
 const path = require("path");
 const fs = require("fs-extra");
 
-const mainRepoRelativePath = "./repos/main";
-const folderRepoRelativePath = "./repos/folder";
+const mainRepoRelativePath = "./repos/push/main";
+const folderRepoRelativePath = "./repos/push/folder";
 const mainRepoPath = path.resolve(__dirname, mainRepoRelativePath);
 const folderRepoPath = path.resolve(__dirname, folderRepoRelativePath);
 
@@ -17,6 +17,7 @@ let folderRepo;
 const branchName = "master";
 
 beforeAll(async done => {
+  jest.setTimeout(10000);
   await Git.Clone.clone(repoToClone, mainRepoPath);
   done();
 });
@@ -41,156 +42,6 @@ afterEach(async done => {
 afterAll(async done => {
   await fs.remove(mainRepoPath);
   done();
-});
-
-describe("Folder repo is forked correcly", () => {
-  test("all unignored files are copied - check by counting", async () => {
-    const filesToCopy = (await mainRepo.index())
-      .entries()
-      .filter(x => folderPathRegExp.test(x.path));
-    const copiedFiles = (await folderRepo.index())
-      .entries()
-      .filter(x => x.path !== ".gitignore");
-    expect(copiedFiles.length).toBe(filesToCopy.length);
-  });
-  test("all unignored files are copied - check by name and file size", async () => {
-    const filesToCopy = (await mainRepo.index())
-      .entries()
-      .filter(x => folderPathRegExp.test(x.path));
-    const copiedFiles = (await folderRepo.index())
-      .entries()
-      .filter(x => x.path !== ".gitignore");
-    expect(
-      copiedFiles.map(({ fileSize, path }) => ({ fileSize, path }))
-    ).toEqual(filesToCopy.map(({ fileSize, path }) => ({ fileSize, path })));
-  });
-  test("proper commit is made in the forked folder", async () => {
-    const expected = (await mainRepo.getMasterCommit()).sha();
-    const output = (await folderRepo.getMasterCommit()).message();
-    expect(output).toBe(expected);
-    await fs.remove(folderRepoPath);
-  });
-  test("config file is created correctly", async () => {
-    const expected = {
-      mainRepoPath: path.relative(folderRepoPath, mainRepoPath),
-      folders: folderPaths,
-      branch: branchName
-    };
-    expect(
-      await fs.readJson(path.resolve(folderRepoPath, CONFIG_FILENAME))
-    ).toEqual(expected);
-  });
-});
-
-describe("Folder repo is synced properly with main repo", () => {
-  test("added files in the main repo are properly synced to the folder repo", async () => {
-    const testFile1Path = path.resolve(
-      mainRepoPath,
-      folderPaths[0],
-      "testFile1.txt"
-    );
-    const testFile2Path = path.resolve(
-      mainRepoPath,
-      folderPaths[1],
-      "testFile2.txt"
-    );
-    const testFile3Path = path.resolve(
-      mainRepoPath,
-      folderPaths[1],
-      "testFile3.txt"
-    );
-    const testFile1Text = "Hello World!";
-    const testFile2Text = "How are you?";
-    const testFile3Text = "I am good";
-    await fs.outputFile(testFile1Path, testFile1Text);
-    await fs.outputFile(testFile2Path, testFile2Text);
-    await fs.outputFile(testFile3Path, testFile3Text);
-    const signature = mainRepo.defaultSignature();
-    let index = await mainRepo.refreshIndex();
-    await index.addByPath(path.relative(mainRepoPath, testFile1Path));
-    await index.addByPath(path.relative(mainRepoPath, testFile2Path));
-    await index.addByPath(path.relative(mainRepoPath, testFile3Path));
-    await index.write();
-    const oid = await index.writeTree();
-    const parent = await mainRepo.getCommit(
-      await Git.Reference.nameToId(mainRepo, "HEAD")
-    );
-    const addedFiles = await mainRepo.createCommit(
-      "HEAD",
-      signature,
-      signature,
-      "Added some files",
-      oid,
-      [parent]
-    );
-    await parseArgsAndExecute(folderRepoPath, ["pull"]);
-
-    expect(
-      await fs.readFile(
-        testFile1Path.replace(mainRepoPath, folderRepoPath),
-        "utf8"
-      )
-    ).toBe(testFile1Text);
-    expect(
-      await fs.readFile(
-        testFile2Path.replace(mainRepoPath, folderRepoPath),
-        "utf8"
-      )
-    ).toBe(testFile2Text);
-    expect(
-      await fs.readFile(
-        testFile3Path.replace(mainRepoPath, folderRepoPath),
-        "utf8"
-      )
-    ).toBe(testFile3Text);
-
-    const expectedCommitMessage = (await mainRepo.getMasterCommit()).sha();
-    const outputCommitMessage = (await folderRepo.getMasterCommit()).message();
-    expect(outputCommitMessage).toBe(expectedCommitMessage);
-  });
-
-  test("deleted files in the main repo are properly synced to the folder repo", async () => {
-    const testFile1 = (await fs.readdir(
-      path.resolve(mainRepoPath, folderPaths[0])
-    ))[0];
-    const testFile1Path = path.resolve(mainRepoPath, folderPaths[0], testFile1);
-    const testFile2 = (await fs.readdir(
-      path.resolve(mainRepoPath, folderPaths[1])
-    ))[0];
-    const testFile2Path = path.resolve(mainRepoPath, folderPaths[1], testFile2);
-    await fs.remove(testFile1Path);
-    await fs.remove(testFile2Path);
-
-    const signature = mainRepo.defaultSignature();
-    let index = await mainRepo.refreshIndex();
-    await index.remove(path.relative(mainRepoPath, testFile1Path), 0);
-    await index.remove(path.relative(mainRepoPath, testFile2Path), 0);
-    await index.write();
-    const oid = await index.writeTree();
-    const parent = await mainRepo.getCommit(
-      await Git.Reference.nameToId(mainRepo, "HEAD")
-    );
-    const addedFiles = await mainRepo.createCommit(
-      "HEAD",
-      signature,
-      signature,
-      "Deleted some files",
-      oid,
-      [parent]
-    );
-    await parseArgsAndExecute(folderRepoPath, ["pull"]);
-
-    expect(
-      await fs.exists(testFile1Path.replace(mainRepoPath, folderRepoPath))
-    ).toBe(false);
-    expect(
-      await fs.exists(testFile2Path.replace(mainRepoPath, folderRepoPath))
-    ).toBe(false);
-
-    const expectedCommitMessage = (await mainRepo.getMasterCommit()).sha();
-    const outputCommitMessage = (await folderRepo.getMasterCommit()).message();
-    expect(outputCommitMessage).toBe(expectedCommitMessage);
-  });
 });
 
 describe("Main repo is synced properly with folder repo", () => {
@@ -332,5 +183,186 @@ describe("Main repo is synced properly with folder repo", () => {
     const expectedCommitMessage = (await mainRepo.getMasterCommit()).sha();
     const outputCommitMessage = (await folderRepo.getMasterCommit()).message();
     expect(outputCommitMessage).toBe(expectedCommitMessage);
+  });
+
+  test("properly updates if the branch already exists in the main repo", async () => {
+    const branchName = "testBranch3";
+    const commitMsg = "added some files";
+
+    const newBranch = await folderRepo.createBranch(
+      branchName,
+      (await folderRepo.getMasterCommit()).sha(),
+      0 // gives error if the branch already exists
+    );
+    await folderRepo.checkoutBranch(branchName);
+
+    await mainRepo.createBranch(
+      branchName,
+      (await folderRepo.getMasterCommit()).message(),
+      0 // gives error if the branch already exists
+    );
+    await mainRepo.checkoutBranch(branchName);
+
+    const testFile1Path = path.resolve(
+      folderRepoPath,
+      folderPaths[0],
+      "testFile1.txt"
+    );
+    const testFile2Path = path.resolve(
+      folderRepoPath,
+      folderPaths[1],
+      "testFile2.txt"
+    );
+    const testFile3Path = path.resolve(
+      folderRepoPath,
+      folderPaths[1],
+      "testFile3.txt"
+    );
+
+    // to placed in main repo
+    const testFile4Path = path.resolve(
+      mainRepoPath,
+      folderPaths[0],
+      "testFile4.txt"
+    );
+
+    const testFile1Text = "Hello World!";
+    const testFile2Text = "How are you?";
+    const testFile3Text = "I am good";
+    const testFile4Text = "This file in main repo should be deleted";
+
+    await fs.outputFile(testFile1Path, testFile1Text);
+    await fs.outputFile(testFile2Path, testFile2Text);
+    await fs.outputFile(testFile3Path, testFile3Text);
+    await fs.outputFile(testFile4Path, testFile4Text);
+    const signature = mainRepo.defaultSignature();
+
+    //commmit textFile4 in main repo
+    const mainRepoIndex = await mainRepo.refreshIndex();
+    await mainRepoIndex.addByPath(path.relative(mainRepoPath, testFile4Path));
+    await mainRepoIndex.write();
+    const mainRepoOid = await mainRepoIndex.writeTree();
+    const mainRepoParent = await mainRepo.getCommit(
+      await Git.Reference.nameToId(mainRepo, "HEAD")
+    );
+    await mainRepo.createCommit(
+      "HEAD",
+      signature,
+      signature,
+      "adding a test file",
+      mainRepoOid,
+      [mainRepoParent]
+    );
+
+    const folderRepoIndex = await folderRepo.refreshIndex();
+    await folderRepoIndex.addByPath(
+      path.relative(folderRepoPath, testFile1Path)
+    );
+    await folderRepoIndex.addByPath(
+      path.relative(folderRepoPath, testFile2Path)
+    );
+    await folderRepoIndex.addByPath(
+      path.relative(folderRepoPath, testFile3Path)
+    );
+    await folderRepoIndex.write();
+    const oid = await folderRepoIndex.writeTree();
+    const parent = await folderRepo.getCommit(
+      await Git.Reference.nameToId(folderRepo, "HEAD")
+    );
+    const addedFiles = await folderRepo.createCommit(
+      "HEAD",
+      signature,
+      signature,
+      commitMsg,
+      oid,
+      [parent]
+    );
+    const pushCmd = `push --branch ${branchName} --message ${commitMsg}`;
+    await parseArgsAndExecute(folderRepoPath, pushCmd.split(" "));
+
+    expect(
+      await fs.readFile(
+        testFile1Path.replace(folderRepoPath, mainRepoPath),
+        "utf8"
+      )
+    ).toBe(testFile1Text);
+    expect(
+      await fs.readFile(
+        testFile2Path.replace(folderRepoPath, mainRepoPath),
+        "utf8"
+      )
+    ).toBe(testFile2Text);
+    expect(
+      await fs.readFile(
+        testFile3Path.replace(folderRepoPath, mainRepoPath),
+        "utf8"
+      )
+    ).toBe(testFile3Text);
+
+    const expectedCommitMessage = (await mainRepo.getMasterCommit()).sha();
+    const outputCommitMessage = (await folderRepo.getMasterCommit()).message();
+    expect(outputCommitMessage).toBe(expectedCommitMessage);
+  });
+
+  test("properly store the mapping of pushed branches", async () => {
+    const branchName = "testBranch4";
+    const folderBranchName = "helloBranch";
+    const commitMsg = "deleted some files";
+
+    const newBranch = await folderRepo.createBranch(
+      folderBranchName,
+      (await folderRepo.getMasterCommit()).sha(),
+      0 // gives error if the branch already exists
+    );
+    await folderRepo.checkoutBranch(folderBranchName);
+
+    const testFile1 = (await fs.readdir(
+      path.resolve(folderRepoPath, folderPaths[0])
+    ))[0];
+    const testFile1Path = path.resolve(
+      folderRepoPath,
+      folderPaths[0],
+      testFile1
+    );
+    const testFile2 = (await fs.readdir(
+      path.resolve(folderRepoPath, folderPaths[1])
+    ))[0];
+    const testFile2Path = path.resolve(
+      folderRepoPath,
+      folderPaths[1],
+      testFile2
+    );
+    await fs.remove(testFile1Path);
+    await fs.remove(testFile2Path);
+
+    const signature = mainRepo.defaultSignature();
+    let index = await folderRepo.refreshIndex();
+    await index.remove(path.relative(folderRepoPath, testFile1Path), 0);
+    await index.remove(path.relative(folderRepoPath, testFile2Path), 0);
+    await index.write();
+    const oid = await index.writeTree();
+    const parent = await folderRepo.getCommit(
+      await Git.Reference.nameToId(folderRepo, "HEAD")
+    );
+    const addedFiles = await folderRepo.createCommit(
+      "HEAD",
+      signature,
+      signature,
+      commitMsg,
+      oid,
+      [parent]
+    );
+    const pushCmd = `push --branch ${branchName} --message ${commitMsg}`;
+    await parseArgsAndExecute(folderRepoPath, pushCmd.split(" "));
+
+    const config = await fs.readJson(
+      path.resolve(folderRepoPath, CONFIG_FILENAME)
+    );
+    const expected = Object.assign(config, {
+      branchInMain: { [folderBranchName]: branchName }
+    });
+    expect(
+      await fs.readJson(path.resolve(folderRepoPath, CONFIG_FILENAME))
+    ).toEqual(expected);
   });
 });
