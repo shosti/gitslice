@@ -17,7 +17,7 @@ let folderRepo;
 const branchName = "master";
 
 beforeAll(async done => {
-  jest.setTimeout(20000);
+  jest.setTimeout(10000);
   await Git.Clone.clone(repoToClone, mainRepoPath);
   done();
 });
