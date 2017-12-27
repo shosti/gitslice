@@ -375,7 +375,7 @@ describe("Main repo is synced properly with folder repo", () => {
     try {
       await parseArgsAndExecute(folderRepoPath, pushCmd.split(" "));
     } catch (e) {
-      expect(3).toBe(3);
+      expect(e).toBe("Cannot push from master branch");
     }
   });
 });
