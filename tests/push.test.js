@@ -17,7 +17,7 @@ let folderRepo;
 const branchName = "master";
 
 beforeAll(async done => {
-  jest.setTimeout(10000);
+  jest.setTimeout(20000);
   await Git.Clone.clone(repoToClone, mainRepoPath);
   done();
 });
@@ -370,12 +370,53 @@ describe("Main repo is synced properly with folder repo", () => {
     await folderRepo.setHead(`refs/heads/master`);
 
     const branchName = "test-branch-5";
-    const commitMsg = "random commit from testing";
+    const commitMsg = "random commit for testing";
     const pushCmd = `push --branch ${branchName} --message ${commitMsg}`;
     try {
       await parseArgsAndExecute(folderRepoPath, pushCmd.split(" "));
     } catch (e) {
       expect(e).toBe("Error: cannot push from master branch");
+    }
+  });
+  test("does not push if there are uncommitted changes", async () => {
+    expect.assertions(1);
+    const branchName = "test-branch-4";
+    const folderBranchName = "noPush";
+    const commitMsg = "made some unimportant changes";
+
+    const newBranch = await folderRepo.createBranch(
+      folderBranchName,
+      (await folderRepo.getMasterCommit()).sha(),
+      0 // gives error if the branch already exists
+    );
+    await folderRepo.checkoutBranch(folderBranchName);
+    const testFile1Path = path.resolve(
+      folderRepoPath,
+      folderPaths[0],
+      "testFile1.txt"
+    );
+    const testFile2Path = path.resolve(
+      folderRepoPath,
+      folderPaths[1],
+      "testFile2.txt"
+    );
+    const testFile3Path = path.resolve(
+      folderRepoPath,
+      folderPaths[1],
+      "testFile3.txt"
+    );
+    const testFile1Text = "Some unimportant text";
+    const testFile2Text = "Testing Testing Testing";
+    const testFile3Text = "I want to travel";
+    await fs.outputFile(testFile1Path, testFile1Text);
+    await fs.outputFile(testFile2Path, testFile2Text);
+    await fs.outputFile(testFile3Path, testFile3Text);
+
+    try {
+      const pushCmd = `push --branch ${branchName} --message ${commitMsg}`;
+      await parseArgsAndExecute(folderRepoPath, pushCmd.split(" "));
+    } catch (e) {
+      expect(e).toBe("Error: cannot push with uncommitted changes");
     }
   });
 });
