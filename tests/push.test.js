@@ -23,11 +23,9 @@ beforeAll(async done => {
 });
 
 beforeEach(async done => {
-  const initCmd = `init ${folderRepoRelativePath} --repo ${
-    mainRepoRelativePath
-  } --folder ${folderPaths[0]} --folder ${folderPaths[1]} --branch ${
-    branchName
-  }`;
+  const initCmd = `init ${folderRepoRelativePath} --repo ${mainRepoRelativePath} --folder ${
+    folderPaths[0]
+  } --folder ${folderPaths[1]} --branch ${branchName}`;
   await parseArgsAndExecute(__dirname, initCmd.split(" "));
   mainRepo = await Git.Repository.open(mainRepoPath);
   folderRepo = await Git.Repository.open(folderRepoPath);
@@ -364,5 +362,20 @@ describe("Main repo is synced properly with folder repo", () => {
     expect(
       await fs.readJson(path.resolve(folderRepoPath, CONFIG_FILENAME))
     ).toEqual(expected);
+  });
+
+  test("does not push if master branch is checked out", async () => {
+    expect.assertions(1);
+    await folderRepo.checkoutBranch("master");
+    await folderRepo.setHead(`refs/heads/master`);
+
+    const branchName = "test-branch-5";
+    const commitMsg = "random commit from testing";
+    const pushCmd = `push --branch ${branchName} --message ${commitMsg}`;
+    try {
+      await parseArgsAndExecute(folderRepoPath, pushCmd.split(" "));
+    } catch (e) {
+      expect(3).toBe(3);
+    }
   });
 });
