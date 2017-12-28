@@ -3,6 +3,7 @@ const { CONFIG_FILENAME } = require("../lib/constants");
 const Git = require("nodegit");
 const path = require("path");
 const fs = require("fs-extra");
+const { getCurBranch, getAllFiles } = require("../lib/utils");
 
 const mainRepoRelativePath = "./repos/pull/main";
 const folderRepoRelativePath = "./repos/pull/folder";
@@ -23,11 +24,9 @@ beforeAll(async done => {
 });
 
 beforeEach(async done => {
-  const initCmd = `init ${folderRepoRelativePath} --repo ${
-    mainRepoRelativePath
-  } --folder ${folderPaths[0]} --folder ${folderPaths[1]} --branch ${
-    branchName
-  }`;
+  const initCmd = `init ${folderRepoRelativePath} --repo ${mainRepoRelativePath} --folder ${
+    folderPaths[0]
+  } --folder ${folderPaths[1]} --branch ${branchName}`;
   await parseArgsAndExecute(__dirname, initCmd.split(" "));
   mainRepo = await Git.Repository.open(mainRepoPath);
   folderRepo = await Git.Repository.open(folderRepoPath);
@@ -152,5 +151,49 @@ describe("Folder repo is synced properly with main repo", () => {
     const expectedCommitMessage = (await mainRepo.getMasterCommit()).sha();
     const outputCommitMessage = (await folderRepo.getMasterCommit()).message();
     expect(outputCommitMessage).toBe(expectedCommitMessage);
+  });
+
+  test("checkouts to the master branch before pulling", async () => {
+    let branchName = "pull-test-branch";
+    await folderRepo.createBranch(
+      branchName,
+      (await folderRepo.getMasterCommit()).sha(),
+      0 // gives error if the branch already exists
+    );
+    await folderRepo.checkoutBranch(branchName);
+    await folderRepo.setHead(`refs/heads/${branchName}`);
+    await parseArgsAndExecute(folderRepoPath, ["pull"]);
+    expect(await getCurBranch(folderRepo)).toBe("master");
+  });
+
+  test("does not pull if there are uncommitted changes", async () => {
+    expect.assertions(1);
+    const testFile1Path = path.resolve(
+      folderRepoPath,
+      folderPaths[0],
+      "testFile1.txt"
+    );
+    const testFile2Path = path.resolve(
+      folderRepoPath,
+      folderPaths[1],
+      "testFile2.txt"
+    );
+    const testFile3Path = path.resolve(
+      folderRepoPath,
+      folderPaths[1],
+      "testFile3.txt"
+    );
+    const testFile1Text = "Some unimportant text";
+    const testFile2Text = "Testing Testing Testing";
+    const testFile3Text = "I want to travel";
+    await fs.outputFile(testFile1Path, testFile1Text);
+    await fs.outputFile(testFile2Path, testFile2Text);
+    await fs.outputFile(testFile3Path, testFile3Text);
+
+    try {
+      await parseArgsAndExecute(folderRepoPath, ["pull"]);
+    } catch (e) {
+      expect(e).toBe("Error: cannot pull with uncommitted changes");
+    }
   });
 });
