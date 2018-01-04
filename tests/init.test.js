@@ -50,7 +50,8 @@ describe("Folder repo is forked correcly", () => {
     const copiedFiles = (await folderRepo.index())
       .entries()
       .filter(x => x.path !== ".gitignore");
-    expect(copiedFiles.length).toBe(filesToCopy.length);
+    // excluding the config file
+    expect(copiedFiles.length - 1).toBe(filesToCopy.length);
   });
   test("all unignored files are copied - check by name and file size", async () => {
     const filesToCopy = (await mainRepo.index())
@@ -58,7 +59,8 @@ describe("Folder repo is forked correcly", () => {
       .filter(x => folderPathRegExp.test(x.path));
     const copiedFiles = (await folderRepo.index())
       .entries()
-      .filter(x => x.path !== ".gitignore");
+      .filter(x => x.path !== ".gitignore")
+      .filter(x => x.path !== CONFIG_FILENAME);
     expect(
       copiedFiles.map(({ fileSize, path }) => ({ fileSize, path }))
     ).toEqual(filesToCopy.map(({ fileSize, path }) => ({ fileSize, path })));
@@ -74,7 +76,8 @@ describe("Folder repo is forked correcly", () => {
       mainRepoPath: path.relative(folderRepoPath, mainRepoPath),
       folders: folderPaths,
       branch: branchName,
-      branchInMain: {}
+      branchInMain: {},
+      ignore: [CONFIG_FILENAME]
     };
     expect(
       await fs.readJson(path.resolve(folderRepoPath, CONFIG_FILENAME))
