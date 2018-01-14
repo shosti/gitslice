@@ -1,5 +1,6 @@
 const parseArgsAndExecute = require("../lib");
 const { CONFIG_FILENAME } = require("../lib/constants");
+const { addCommmitMsgPrefix, removeCommitMsgPrefix } = require('../lib/utils')
 const Git = require("nodegit");
 const path = require("path");
 const fs = require("fs-extra");
@@ -116,7 +117,7 @@ describe("Main repo is synced properly with folder repo", () => {
       )
     ).toBe(testFile3Text);
 
-    const expectedCommitMessage = (await mainRepo.getMasterCommit()).sha();
+    const expectedCommitMessage = addCommmitMsgPrefix((await mainRepo.getMasterCommit()).sha());
     const outputCommitMessage = (await folderRepo.getMasterCommit()).message();
     expect(outputCommitMessage).toBe(expectedCommitMessage);
   });
@@ -178,7 +179,7 @@ describe("Main repo is synced properly with folder repo", () => {
       await fs.exists(testFile2Path.replace(folderRepoPath, mainRepoPath))
     ).toBe(false);
 
-    const expectedCommitMessage = (await mainRepo.getMasterCommit()).sha();
+    const expectedCommitMessage = addCommmitMsgPrefix((await mainRepo.getMasterCommit()).sha());
     const outputCommitMessage = (await folderRepo.getMasterCommit()).message();
     expect(outputCommitMessage).toBe(expectedCommitMessage);
   });
@@ -196,7 +197,7 @@ describe("Main repo is synced properly with folder repo", () => {
 
     await mainRepo.createBranch(
       branchName,
-      (await folderRepo.getMasterCommit()).message(),
+      removeCommitMsgPrefix((await folderRepo.getMasterCommit()).message()),
       0 // gives error if the branch already exists
     );
     await mainRepo.checkoutBranch(branchName);
@@ -297,7 +298,7 @@ describe("Main repo is synced properly with folder repo", () => {
       )
     ).toBe(testFile3Text);
 
-    const expectedCommitMessage = (await mainRepo.getMasterCommit()).sha();
+    const expectedCommitMessage = addCommmitMsgPrefix((await mainRepo.getMasterCommit()).sha());
     const outputCommitMessage = (await folderRepo.getMasterCommit()).message();
     expect(outputCommitMessage).toBe(expectedCommitMessage);
   });

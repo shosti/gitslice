@@ -1,5 +1,6 @@
 const parseArgsAndExecute = require("../lib");
 const { CONFIG_FILENAME } = require("../lib/constants");
+const { addCommmitMsgPrefix } = require('../lib/utils');
 const Git = require("nodegit");
 const path = require("path");
 const fs = require("fs-extra");
@@ -66,7 +67,7 @@ describe("Folder repo is forked correcly", () => {
     ).toEqual(filesToCopy.map(({ fileSize, path }) => ({ fileSize, path })));
   });
   test("proper commit is made in the forked folder", async () => {
-    const expected = (await mainRepo.getMasterCommit()).sha();
+    const expected = addCommmitMsgPrefix((await mainRepo.getMasterCommit()).sha());
     const output = (await folderRepo.getMasterCommit()).message();
     expect(output).toBe(expected);
     await fs.remove(folderRepoPath);

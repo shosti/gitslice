@@ -3,7 +3,7 @@ const { CONFIG_FILENAME } = require("../lib/constants");
 const Git = require("nodegit");
 const path = require("path");
 const fs = require("fs-extra");
-const { getCurBranch, getAllFiles } = require("../lib/utils");
+const { getCurBranch, getAllFiles, addCommmitMsgPrefix } = require("../lib/utils");
 
 const mainRepoRelativePath = "./repos/pull/main";
 const folderRepoRelativePath = "./repos/pull/folder";
@@ -105,7 +105,7 @@ describe("Folder repo is synced properly with main repo", () => {
       )
     ).toBe(testFile3Text);
 
-    const expectedCommitMessage = (await mainRepo.getMasterCommit()).sha();
+    const expectedCommitMessage = addCommmitMsgPrefix((await mainRepo.getMasterCommit()).sha());
     const outputCommitMessage = (await folderRepo.getMasterCommit()).message();
     expect(outputCommitMessage).toBe(expectedCommitMessage);
   });
@@ -148,7 +148,7 @@ describe("Folder repo is synced properly with main repo", () => {
       await fs.exists(testFile2Path.replace(mainRepoPath, folderRepoPath))
     ).toBe(false);
 
-    const expectedCommitMessage = (await mainRepo.getMasterCommit()).sha();
+    const expectedCommitMessage = addCommmitMsgPrefix((await mainRepo.getMasterCommit()).sha());
     const outputCommitMessage = (await folderRepo.getMasterCommit()).message();
     expect(outputCommitMessage).toBe(expectedCommitMessage);
   });
