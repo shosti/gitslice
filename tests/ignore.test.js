@@ -1,31 +1,70 @@
+const Git = require("nodegit");
+const fs = require("fs-extra");
+const path = require("path");
 const parseArgsAndExecute = require("../lib");
+const _ = require('lodash');
 const { CONFIG_FILENAME } = require("../lib/constants");
+
+const mainRepoRelativePath = "./repos/pull/main";
+const folderRepoRelativePath = "./repos/pull/folder";
+const mainRepoPath = path.resolve(__dirname, mainRepoRelativePath);
+const folderRepoPath = path.resolve(__dirname, folderRepoRelativePath);
+
+const repoToClone = "https://github.com/arslanarshad31/trello-react.git";
+const folderPaths = ["public", "src/reducers"]; // to be modified with the repo
+const folderPathRegExp = new RegExp(folderPaths.join("|^"));
+let folderRepo;
+const branchName = "master";
 
 beforeAll(async done => {
   jest.setTimeout(10000);
   await Git.Clone.clone(repoToClone, mainRepoPath);
-  done();
-});
-
-beforeEach(async done => {
   const initCmd = `init ${folderRepoRelativePath} --repo ${mainRepoRelativePath} --folder ${
     folderPaths[0]
   } --folder ${folderPaths[1]} --branch ${branchName}`;
   await parseArgsAndExecute(__dirname, initCmd.split(" "));
-  mainRepo = await Git.Repository.open(mainRepoPath);
   folderRepo = await Git.Repository.open(folderRepoPath);
   done();
 });
 
-afterEach(async done => {
-  await fs.remove(folderRepoPath);
-  done();
-});
-
 afterAll(async done => {
+  await fs.remove(folderRepoPath);
   await fs.remove(mainRepoPath);
   done();
 });
 
 
-describe("Add files to the ignore array in config file", () => {}
+describe("Modifies ignore array in config file", () => {
+  test('correctly detects same file in for both operations', async () => {
+    expect.assertions(2);
+    const initialConfig = await fs.readJson(path.resolve(folderRepoPath, CONFIG_FILENAME));
+    try {
+      const ignoreCmd = `ignore --add test-file-1.txt --remove test-file-1.txt`;
+      await parseArgsAndExecute(folderRepoPath, ignoreCmd.split(" "));
+    } catch (e) {
+      const updatedConfig = await fs.readJson(path.resolve(folderRepoPath, CONFIG_FILENAME));
+      expect(e).toBe("Error: Both add and remove operation is being performed on the same file");
+      expect(initialConfig).toEqual(updatedConfig); // no changes are made to the config file
+    }
+  });
+
+  test('correctly performes the add operation', async () => {
+    const intialIgnore = (await fs.readJson(path.resolve(folderRepoPath, CONFIG_FILENAME))).ignore;
+    const fileToAdd = 'test-file-3.txt'
+    const ignoreCmd = `ignore --add ${fileToAdd}`;
+    await parseArgsAndExecute(folderRepoPath, ignoreCmd.split(" "));    
+    const updatedIgnore = (await fs.readJson(path.resolve(folderRepoPath, CONFIG_FILENAME))).ignore;
+    expect([...intialIgnore, fileToAdd]).toEqual(updatedIgnore)
+  });
+  
+
+  test('correctly performes the remove operation', async () => {
+    const intialIgnore = (await fs.readJson(path.resolve(folderRepoPath, CONFIG_FILENAME))).ignore;
+    const fileTorRemove = 'test-file-3.txt'
+    const ignoreCmd = `ignore --remove ${fileTorRemove}`;
+    await parseArgsAndExecute(folderRepoPath, ignoreCmd.split(" "));    
+    const updatedIgnore = (await fs.readJson(path.resolve(folderRepoPath, CONFIG_FILENAME))).ignore;
+    expect(intialIgnore).toEqual([...updatedIgnore, fileTorRemove])
+  });
+  
+})
