@@ -5,8 +5,8 @@ const parseArgsAndExecute = require("../lib");
 const _ = require('lodash');
 const { CONFIG_FILENAME } = require("../lib/constants");
 
-const mainRepoRelativePath = "./repos/pull/main";
-const folderRepoRelativePath = "./repos/pull/folder";
+const mainRepoRelativePath = "./repos/ignore/main";
+const folderRepoRelativePath = "./repos/ignore/folder";
 const mainRepoPath = path.resolve(__dirname, mainRepoRelativePath);
 const folderRepoPath = path.resolve(__dirname, folderRepoRelativePath);
 
@@ -54,7 +54,9 @@ describe("Modifies ignore array in config file", () => {
     const ignoreCmd = `ignore --add ${fileToAdd}`;
     await parseArgsAndExecute(folderRepoPath, ignoreCmd.split(" "));    
     const updatedIgnore = (await fs.readJson(path.resolve(folderRepoPath, CONFIG_FILENAME))).ignore;
+    const actualCommitMsg = (await folderRepo.getMasterCommit()).message()    
     expect([...intialIgnore, fileToAdd]).toEqual(updatedIgnore)
+    expect(actualCommitMsg).toEqual(`updated ${CONFIG_FILENAME}`)
   });
   
 
@@ -64,7 +66,9 @@ describe("Modifies ignore array in config file", () => {
     const ignoreCmd = `ignore --remove ${fileTorRemove}`;
     await parseArgsAndExecute(folderRepoPath, ignoreCmd.split(" "));    
     const updatedIgnore = (await fs.readJson(path.resolve(folderRepoPath, CONFIG_FILENAME))).ignore;
+    const actualCommitMsg = (await folderRepo.getMasterCommit()).message()    
     expect(intialIgnore).toEqual([...updatedIgnore, fileTorRemove])
+    expect(actualCommitMsg).toEqual(`updated ${CONFIG_FILENAME}`)
   });
   
 })
