@@ -1,6 +1,11 @@
 const parseArgsAndExecute = require("../lib");
 const { CONFIG_FILENAME } = require("../lib/constants");
-const { addCommmitMsgPrefix, removeCommitMsgPrefix, getLastGitSliceCommitMsg } = require("../lib/utils");
+const {
+  addCommmitMsgPrefix,
+  removeCommitMsgPrefix,
+  getLastGitSliceCommitMsg,
+  getCurBranch
+} = require("../lib/utils");
 const Git = require("nodegit");
 const path = require("path");
 const fs = require("fs-extra");
@@ -16,6 +21,9 @@ const folderPathRegExp = new RegExp(folderPaths.join("|^"));
 let mainRepo;
 let folderRepo;
 const branchName = "master";
+
+const authorName = 'Murcul'
+const authorEmail = 'murcul@murcul.com'
 
 beforeAll(async done => {
   jest.setTimeout(10000);
@@ -95,7 +103,7 @@ describe("Main repo is synced properly with folder repo", () => {
       oid,
       [parent]
     );
-    const pushCmd = `push --branch ${branchName} --message ${commitMsg}`;
+    const pushCmd = `push --branch ${branchName} --message ${commitMsg} --authorName ${authorName} --authorEmail ${authorEmail}`;
     await parseArgsAndExecute(folderRepoPath, pushCmd.split(" "));
 
     expect(
@@ -171,7 +179,7 @@ describe("Main repo is synced properly with folder repo", () => {
       oid,
       [parent]
     );
-    const pushCmd = `push --branch ${branchName} --message ${commitMsg}`;
+    const pushCmd = `push --branch ${branchName} --message ${commitMsg} --authorName ${authorName} --authorEmail ${authorEmail}`;
     await parseArgsAndExecute(folderRepoPath, pushCmd.split(" "));
 
     expect(
@@ -280,7 +288,7 @@ describe("Main repo is synced properly with folder repo", () => {
       oid,
       [parent]
     );
-    const pushCmd = `push --branch ${branchName} --message ${commitMsg}`;
+    const pushCmd = `push --branch ${branchName} --message ${commitMsg} --authorName ${authorName} --authorEmail ${authorEmail}`;
     await parseArgsAndExecute(folderRepoPath, pushCmd.split(" "));
 
     expect(
@@ -357,7 +365,7 @@ describe("Main repo is synced properly with folder repo", () => {
       oid,
       [parent]
     );
-    const pushCmd = `push --branch ${branchName} --message ${commitMsg}`;
+    const pushCmd = `push --branch ${branchName} --message ${commitMsg} --authorName ${authorName} --authorEmail ${authorEmail}`;
     await parseArgsAndExecute(folderRepoPath, pushCmd.split(" "));
 
     const config = await fs.readJson(
@@ -378,7 +386,7 @@ describe("Main repo is synced properly with folder repo", () => {
 
     const branchName = "test-branch-5";
     const commitMsg = "random commit for testing";
-    const pushCmd = `push --branch ${branchName} --message ${commitMsg}`;
+    const pushCmd = `push --branch ${branchName} --message ${commitMsg} --authorName ${authorName} --authorEmail ${authorEmail}`;
     try {
       await parseArgsAndExecute(folderRepoPath, pushCmd.split(" "));
     } catch (e) {
@@ -420,7 +428,7 @@ describe("Main repo is synced properly with folder repo", () => {
     await fs.outputFile(testFile3Path, testFile3Text);
 
     try {
-      const pushCmd = `push --branch ${branchName} --message ${commitMsg}`;
+      const pushCmd = `push --branch ${branchName} --message ${commitMsg} --authorName ${authorName} --authorEmail ${authorEmail}`;
       await parseArgsAndExecute(folderRepoPath, pushCmd.split(" "));
     } catch (e) {
       expect(e).toBe("Error: cannot push with uncommitted changes");
@@ -503,7 +511,7 @@ describe("Main repo is synced properly with folder repo", () => {
       [parentMaster]
     );
     await folderRepo.checkoutBranch(branchName);
-    const pushCmd = `push --branch ${branchName} --message ${commitMsg}`;
+    const pushCmd = `push --branch ${branchName} --message ${commitMsg} --authorName ${authorName} --authorEmail ${authorEmail}`;
     await parseArgsAndExecute(folderRepoPath, pushCmd.split(" "));
 
     expect(
@@ -530,5 +538,50 @@ describe("Main repo is synced properly with folder repo", () => {
     );
     const outputCommitMessage = await getLastGitSliceCommitMsg(folderRepo);
     expect(outputCommitMessage).toBe(expectedCommitMessage);
+  });
+
+  test("commits with the correct signature in the main repo", async () => {
+    const branchName = "test-branch-6";
+    const commitMsg = "added-some-files";
+
+    const newBranch = await folderRepo.createBranch(
+      branchName,
+      (await folderRepo.getMasterCommit()).sha(),
+      0 // gives error if the branch already exists
+    );
+    await folderRepo.checkoutBranch(branchName);
+
+    const testFile1Path = path.resolve(
+      folderRepoPath,
+      folderPaths[0],
+      "testFile1.txt"
+    );
+
+    const testFile1Text = "Hello World!";
+    await fs.outputFile(testFile1Path, testFile1Text);
+    const signature = mainRepo.defaultSignature();
+
+    let index = await folderRepo.refreshIndex();
+    await index.addByPath(path.relative(folderRepoPath, testFile1Path));
+    await index.write();
+    const oid = await index.writeTree();
+    const parent = await folderRepo.getCommit(
+      await Git.Reference.nameToId(folderRepo, "HEAD")
+    );
+    const addedFiles = await folderRepo.createCommit(
+      "HEAD",
+      signature,
+      signature,
+      commitMsg,
+      oid,
+      [parent]
+    );
+    const pushCmd = `push --branch ${branchName} --message ${commitMsg} --authorName ${authorName} --authorEmail ${authorEmail}`;
+    await parseArgsAndExecute(folderRepoPath, pushCmd.split(" "));
+
+    const mainRepoBranch = await getCurBranch(mainRepo);
+    expect(mainRepoBranch).toEqual(branchName);
+    const commitAuthor = (await mainRepo.getHeadCommit()).author().toString();
+    expect(commitAuthor).toEqual(`${authorName} <${authorEmail}>`);
   });
 });
