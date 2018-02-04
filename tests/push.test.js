@@ -22,8 +22,8 @@ let mainRepo;
 let folderRepo;
 const branchName = "master";
 
-const authorName = 'Murcul'
-const authorEmail = 'murcul@murcul.com'
+const authorName = "Murcul";
+const authorEmail = "murcul@murcul.com";
 
 beforeAll(async done => {
   jest.setTimeout(10000);
@@ -124,12 +124,6 @@ describe("Main repo is synced properly with folder repo", () => {
         "utf8"
       )
     ).toBe(testFile3Text);
-
-    const expectedCommitMessage = addCommmitMsgPrefix(
-      (await mainRepo.getMasterCommit()).sha()
-    );
-    const outputCommitMessage = (await folderRepo.getMasterCommit()).message();
-    expect(outputCommitMessage).toBe(expectedCommitMessage);
   });
 
   test("deleted files in the folder repo are properly synced to the main repo", async () => {
@@ -188,12 +182,6 @@ describe("Main repo is synced properly with folder repo", () => {
     expect(
       await fs.exists(testFile2Path.replace(folderRepoPath, mainRepoPath))
     ).toBe(false);
-
-    const expectedCommitMessage = addCommmitMsgPrefix(
-      (await mainRepo.getMasterCommit()).sha()
-    );
-    const outputCommitMessage = (await folderRepo.getMasterCommit()).message();
-    expect(outputCommitMessage).toBe(expectedCommitMessage);
   });
 
   test("properly updates if the branch already exists in the main repo", async () => {
@@ -219,38 +207,24 @@ describe("Main repo is synced properly with folder repo", () => {
       folderPaths[0],
       "testFile1.txt"
     );
-    const testFile2Path = path.resolve(
-      folderRepoPath,
-      folderPaths[1],
-      "testFile2.txt"
-    );
-    const testFile3Path = path.resolve(
-      folderRepoPath,
-      folderPaths[1],
-      "testFile3.txt"
-    );
-
+    
     // to placed in main repo
-    const testFile4Path = path.resolve(
+    const testFile2Path = path.resolve(
       mainRepoPath,
       folderPaths[0],
       "testFile4.txt"
     );
 
     const testFile1Text = "Hello World!";
-    const testFile2Text = "How are you?";
-    const testFile3Text = "I am good";
-    const testFile4Text = "This file in main repo should be deleted";
+    const testFile2Text = "This file in main repo should be deleted";
 
     await fs.outputFile(testFile1Path, testFile1Text);
     await fs.outputFile(testFile2Path, testFile2Text);
-    await fs.outputFile(testFile3Path, testFile3Text);
-    await fs.outputFile(testFile4Path, testFile4Text);
     const signature = mainRepo.defaultSignature();
 
-    //commmit textFile4 in main repo
+    // commit textFile4 in main repo
     const mainRepoIndex = await mainRepo.refreshIndex();
-    await mainRepoIndex.addByPath(path.relative(mainRepoPath, testFile4Path));
+    await mainRepoIndex.addByPath(path.relative(mainRepoPath, testFile2Path));
     await mainRepoIndex.write();
     const mainRepoOid = await mainRepoIndex.writeTree();
     const mainRepoParent = await mainRepo.getCommit(
@@ -268,12 +242,6 @@ describe("Main repo is synced properly with folder repo", () => {
     const folderRepoIndex = await folderRepo.refreshIndex();
     await folderRepoIndex.addByPath(
       path.relative(folderRepoPath, testFile1Path)
-    );
-    await folderRepoIndex.addByPath(
-      path.relative(folderRepoPath, testFile2Path)
-    );
-    await folderRepoIndex.addByPath(
-      path.relative(folderRepoPath, testFile3Path)
     );
     await folderRepoIndex.write();
     const oid = await folderRepoIndex.writeTree();
@@ -297,24 +265,7 @@ describe("Main repo is synced properly with folder repo", () => {
         "utf8"
       )
     ).toBe(testFile1Text);
-    expect(
-      await fs.readFile(
-        testFile2Path.replace(folderRepoPath, mainRepoPath),
-        "utf8"
-      )
-    ).toBe(testFile2Text);
-    expect(
-      await fs.readFile(
-        testFile3Path.replace(folderRepoPath, mainRepoPath),
-        "utf8"
-      )
-    ).toBe(testFile3Text);
-
-    const expectedCommitMessage = addCommmitMsgPrefix(
-      (await mainRepo.getMasterCommit()).sha()
-    );
-    const outputCommitMessage = (await folderRepo.getMasterCommit()).message();
-    expect(outputCommitMessage).toBe(expectedCommitMessage);
+    expect(await fs.exists(testFile2Path)).toBe(false);
   });
 
   test("properly store the mapping of pushed branches", async () => {
@@ -410,22 +361,8 @@ describe("Main repo is synced properly with folder repo", () => {
       folderPaths[0],
       "testFile1.txt"
     );
-    const testFile2Path = path.resolve(
-      folderRepoPath,
-      folderPaths[1],
-      "testFile2.txt"
-    );
-    const testFile3Path = path.resolve(
-      folderRepoPath,
-      folderPaths[1],
-      "testFile3.txt"
-    );
     const testFile1Text = "Some unimportant text";
-    const testFile2Text = "Testing Testing Testing";
-    const testFile3Text = "I want to travel";
     await fs.outputFile(testFile1Path, testFile1Text);
-    await fs.outputFile(testFile2Path, testFile2Text);
-    await fs.outputFile(testFile3Path, testFile3Text);
 
     try {
       const pushCmd = `push --branch ${branchName} --message ${commitMsg} --authorName ${authorName} --authorEmail ${authorEmail}`;
@@ -532,12 +469,6 @@ describe("Main repo is synced properly with folder repo", () => {
         "utf8"
       )
     ).toBe(testFile3Text);
-
-    const expectedCommitMessage = addCommmitMsgPrefix(
-      (await mainRepo.getMasterCommit()).sha()
-    );
-    const outputCommitMessage = await getLastGitSliceCommitMsg(folderRepo);
-    expect(outputCommitMessage).toBe(expectedCommitMessage);
   });
 
   test("commits with the correct signature in the main repo", async () => {
@@ -579,9 +510,54 @@ describe("Main repo is synced properly with folder repo", () => {
     const pushCmd = `push --branch ${branchName} --message ${commitMsg} --authorName ${authorName} --authorEmail ${authorEmail}`;
     await parseArgsAndExecute(folderRepoPath, pushCmd.split(" "));
 
-    const mainRepoBranch = await getCurBranch(mainRepo);
-    expect(mainRepoBranch).toEqual(branchName);
+    expect(await getCurBranch(mainRepo)).toEqual(branchName);
+    expect((await mainRepo.getHeadCommit()).message()).toEqual(commitMsg);
     const commitAuthor = (await mainRepo.getHeadCommit()).author().toString();
     expect(commitAuthor).toEqual(`${authorName} <${authorEmail}>`);
   });
+
+  test("pushes with correct branch name and commit message", async () => {
+    const branchName = "test-branch-7";
+    const commitMsg = "added-some-files";
+
+    const newBranch = await folderRepo.createBranch(
+      branchName,
+      (await folderRepo.getMasterCommit()).sha(),
+      0 // gives error if the branch already exists
+    );
+    await folderRepo.checkoutBranch(branchName);
+
+    const testFile1Path = path.resolve(
+      folderRepoPath,
+      folderPaths[0],
+      "testFile1.txt"
+    );
+
+    const testFile1Text = "Hello World! How's everything going?";
+    await fs.outputFile(testFile1Path, testFile1Text);
+    const signature = mainRepo.defaultSignature();
+
+    let index = await folderRepo.refreshIndex();
+    await index.addByPath(path.relative(folderRepoPath, testFile1Path));
+    await index.write();
+    const oid = await index.writeTree();
+    const parent = await folderRepo.getCommit(
+      await Git.Reference.nameToId(folderRepo, "HEAD")
+    );
+    const addedFiles = await folderRepo.createCommit(
+      "HEAD",
+      signature,
+      signature,
+      commitMsg,
+      oid,
+      [parent]
+    );
+    const pushCmd = `push --branch ${branchName} --message ${commitMsg} --authorName ${authorName} --authorEmail ${authorEmail}`;
+    await parseArgsAndExecute(folderRepoPath, pushCmd.split(" "));
+
+    expect(await getCurBranch(mainRepo)).toEqual(branchName);
+    expect((await mainRepo.getHeadCommit()).message()).toEqual(commitMsg);
+  });
+
+
 });
