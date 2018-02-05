@@ -103,7 +103,7 @@ describe("Main repo is synced properly with folder repo", () => {
       oid,
       [parent]
     );
-    const pushCmd = `push --branch ${branchName} --message ${commitMsg} --authorName ${authorName} --authorEmail ${authorEmail}`;
+    const pushCmd = `push --branch ${branchName} --message ${commitMsg} --author-name ${authorName} --author-email ${authorEmail}`;
     await parseArgsAndExecute(folderRepoPath, pushCmd.split(" "));
 
     expect(
@@ -173,7 +173,7 @@ describe("Main repo is synced properly with folder repo", () => {
       oid,
       [parent]
     );
-    const pushCmd = `push --branch ${branchName} --message ${commitMsg} --authorName ${authorName} --authorEmail ${authorEmail}`;
+    const pushCmd = `push --branch ${branchName} --message ${commitMsg} --author-name ${authorName} --author-email ${authorEmail}`;
     await parseArgsAndExecute(folderRepoPath, pushCmd.split(" "));
 
     expect(
@@ -256,7 +256,7 @@ describe("Main repo is synced properly with folder repo", () => {
       oid,
       [parent]
     );
-    const pushCmd = `push --branch ${branchName} --message ${commitMsg} --authorName ${authorName} --authorEmail ${authorEmail}`;
+    const pushCmd = `push --branch ${branchName} --message ${commitMsg} --author-name ${authorName} --author-email ${authorEmail}`;
     await parseArgsAndExecute(folderRepoPath, pushCmd.split(" "));
 
     expect(
@@ -316,7 +316,7 @@ describe("Main repo is synced properly with folder repo", () => {
       oid,
       [parent]
     );
-    const pushCmd = `push --branch ${branchName} --message ${commitMsg} --authorName ${authorName} --authorEmail ${authorEmail}`;
+    const pushCmd = `push --branch ${branchName} --message ${commitMsg} --author-name ${authorName} --author-email ${authorEmail}`;
     await parseArgsAndExecute(folderRepoPath, pushCmd.split(" "));
 
     const config = await fs.readJson(
@@ -337,7 +337,7 @@ describe("Main repo is synced properly with folder repo", () => {
 
     const branchName = "test-branch-5";
     const commitMsg = "random commit for testing";
-    const pushCmd = `push --branch ${branchName} --message ${commitMsg} --authorName ${authorName} --authorEmail ${authorEmail}`;
+    const pushCmd = `push --branch ${branchName} --message ${commitMsg} --author-name ${authorName} --author-email ${authorEmail}`;
     try {
       await parseArgsAndExecute(folderRepoPath, pushCmd.split(" "));
     } catch (e) {
@@ -365,7 +365,7 @@ describe("Main repo is synced properly with folder repo", () => {
     await fs.outputFile(testFile1Path, testFile1Text);
 
     try {
-      const pushCmd = `push --branch ${branchName} --message ${commitMsg} --authorName ${authorName} --authorEmail ${authorEmail}`;
+      const pushCmd = `push --branch ${branchName} --message ${commitMsg} --author-name ${authorName} --author-email ${authorEmail}`;
       await parseArgsAndExecute(folderRepoPath, pushCmd.split(" "));
     } catch (e) {
       expect(e).toBe("Error: cannot push with uncommitted changes");
@@ -448,7 +448,7 @@ describe("Main repo is synced properly with folder repo", () => {
       [parentMaster]
     );
     await folderRepo.checkoutBranch(branchName);
-    const pushCmd = `push --branch ${branchName} --message ${commitMsg} --authorName ${authorName} --authorEmail ${authorEmail}`;
+    const pushCmd = `push --branch ${branchName} --message ${commitMsg} --author-name ${authorName} --author-email ${authorEmail}`;
     await parseArgsAndExecute(folderRepoPath, pushCmd.split(" "));
 
     expect(
@@ -507,7 +507,7 @@ describe("Main repo is synced properly with folder repo", () => {
       oid,
       [parent]
     );
-    const pushCmd = `push --branch ${branchName} --message ${commitMsg} --authorName ${authorName} --authorEmail ${authorEmail}`;
+    const pushCmd = `push --branch ${branchName} --message ${commitMsg} --author-name ${authorName} --author-email ${authorEmail}`;
     await parseArgsAndExecute(folderRepoPath, pushCmd.split(" "));
 
     expect(await getCurBranch(mainRepo)).toEqual(branchName);
@@ -552,7 +552,7 @@ describe("Main repo is synced properly with folder repo", () => {
       oid,
       [parent]
     );
-    const pushCmd = `push --branch ${branchName} --message ${commitMsg} --authorName ${authorName} --authorEmail ${authorEmail}`;
+    const pushCmd = `push --branch ${branchName} --message ${commitMsg} --author-name ${authorName} --author-email ${authorEmail}`;
     await parseArgsAndExecute(folderRepoPath, pushCmd.split(" "));
 
     expect(await getCurBranch(mainRepo)).toEqual(branchName);

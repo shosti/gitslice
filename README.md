@@ -35,7 +35,7 @@ If `main-repo/src/frontend/public` is updated, this command can be used to sync 
 ### git-slice push
 ```sh
 $ cd frontend-public
-$ git-slice push --branch updated-photos -message "changed public photos" --authorName "XYZ" --authorEmail "xyz@xyz.com"
+$ git-slice push --branch updated-photos -message "changed public photos" --author-name "XYZ" --author-email "xyz@xyz.com"
 ```
 
 #### Options
@@ -43,8 +43,8 @@ $ git-slice push --branch updated-photos -message "changed public photos" --auth
 | :-------------: |:-------------:|:-----:|
 | --branch | Name of the branch to be created in the main git repository while pushing | YES |
 | --message |  Commit mesasge used to commit changes in the main git reposirory | YES |
-| --authorName | Name of the author which will be used to commit in the main repository | YES |
-| --authorEmail |  Email of the author which will be used to commit in the main repository | YES |
+| --author-name | Name of the author which will be used to commit in the main repository | YES |
+| --author-email |  Email of the author which will be used to commit in the main repository | YES |
 
 
 If `frontend-public/src/frontend/public` is updated, this command can be used to create a new branch named `updated-photos` in `main-repo` and sync the changes made in `frontend-public/src/frontend/public` to that branch. Later, a pull request can be created to merge these changes with the master branch.
