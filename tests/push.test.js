@@ -1,6 +1,6 @@
 const parseArgsAndExecute = require("../lib");
 const { CONFIG_FILENAME } = require("../lib/constants");
-const { addCommmitMsgPrefix, removeCommitMsgPrefix, getLastGitSliceCommitMsg } = require("../lib/utils");
+const { addCommmitMsgPrefix, removeCommitMsgPrefix, getLastGitSliceCommitHash } = require("../lib/utils");
 const Git = require("nodegit");
 const path = require("path");
 const fs = require("fs-extra");
@@ -525,10 +525,8 @@ describe("Main repo is synced properly with folder repo", () => {
       )
     ).toBe(testFile3Text);
 
-    const expectedCommitMessage = addCommmitMsgPrefix(
-      (await mainRepo.getMasterCommit()).sha()
-    );
-    const outputCommitMessage = await getLastGitSliceCommitMsg(folderRepo);
+    const expectedCommitMessage = (await mainRepo.getMasterCommit()).sha()
+    const outputCommitMessage = await getLastGitSliceCommitHash(folderRepo);
     expect(outputCommitMessage).toBe(expectedCommitMessage);
   });
 });
