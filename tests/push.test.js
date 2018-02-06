@@ -3,7 +3,6 @@ const { CONFIG_FILENAME } = require("../lib/constants");
 const {
   addCommmitMsgPrefix,
   removeCommitMsgPrefix,
-  getLastGitSliceCommitMsg,
   getCurBranch
 } = require("../lib/utils");
 const Git = require("nodegit");
@@ -474,7 +473,7 @@ describe("Main repo is synced properly with folder repo", () => {
   test("commits with the correct signature in the main repo", async () => {
     const branchName = "test-branch-6";
     const commitMsg = "added-some-files";
-
+    
     const newBranch = await folderRepo.createBranch(
       branchName,
       (await folderRepo.getMasterCommit()).sha(),
@@ -510,8 +509,6 @@ describe("Main repo is synced properly with folder repo", () => {
     const pushCmd = `push --branch ${branchName} --message ${commitMsg} --author-name ${authorName} --author-email ${authorEmail}`;
     await parseArgsAndExecute(folderRepoPath, pushCmd.split(" "));
 
-    expect(await getCurBranch(mainRepo)).toEqual(branchName);
-    expect((await mainRepo.getHeadCommit()).message()).toEqual(commitMsg);
     const commitAuthor = (await mainRepo.getHeadCommit()).author().toString();
     expect(commitAuthor).toEqual(`${authorName} <${authorEmail}>`);
   });
