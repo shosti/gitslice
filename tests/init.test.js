@@ -1,5 +1,6 @@
 const parseArgsAndExecute = require("../lib");
 const { CONFIG_FILENAME } = require("../lib/constants");
+const { addCommmitMsgPrefix } = require('../lib/utils');
 const Git = require("nodegit");
 const path = require("path");
 const fs = require("fs-extra");
@@ -50,7 +51,8 @@ describe("Folder repo is forked correcly", () => {
     const copiedFiles = (await folderRepo.index())
       .entries()
       .filter(x => x.path !== ".gitignore");
-    expect(copiedFiles.length).toBe(filesToCopy.length);
+    // excluding the config file
+    expect(copiedFiles.length - 1).toBe(filesToCopy.length);
   });
   test("all unignored files are copied - check by name and file size", async () => {
     const filesToCopy = (await mainRepo.index())
@@ -58,13 +60,14 @@ describe("Folder repo is forked correcly", () => {
       .filter(x => folderPathRegExp.test(x.path));
     const copiedFiles = (await folderRepo.index())
       .entries()
-      .filter(x => x.path !== ".gitignore");
+      .filter(x => x.path !== ".gitignore")
+      .filter(x => x.path !== CONFIG_FILENAME);
     expect(
       copiedFiles.map(({ fileSize, path }) => ({ fileSize, path }))
     ).toEqual(filesToCopy.map(({ fileSize, path }) => ({ fileSize, path })));
   });
   test("proper commit is made in the forked folder", async () => {
-    const expected = (await mainRepo.getMasterCommit()).sha();
+    const expected = addCommmitMsgPrefix((await mainRepo.getMasterCommit()).sha());
     const output = (await folderRepo.getMasterCommit()).message();
     expect(output).toBe(expected);
     await fs.remove(folderRepoPath);
@@ -74,7 +77,8 @@ describe("Folder repo is forked correcly", () => {
       mainRepoPath: path.relative(folderRepoPath, mainRepoPath),
       folders: folderPaths,
       branch: branchName,
-      branchInMain: {}
+      branchInMain: {},
+      ignore: [CONFIG_FILENAME]
     };
     expect(
       await fs.readJson(path.resolve(folderRepoPath, CONFIG_FILENAME))
