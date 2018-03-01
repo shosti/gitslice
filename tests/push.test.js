@@ -267,68 +267,6 @@ describe("Main repo is synced properly with folder repo", () => {
     expect(await fs.exists(testFile2Path)).toBe(false);
   });
 
-  test("properly store the mapping of pushed branches", async () => {
-    const branchName = "test-branch-4";
-    const folderBranchName = "helloBranch";
-    const commitMsg = "deleted some files";
-
-    const newBranch = await folderRepo.createBranch(
-      folderBranchName,
-      (await folderRepo.getMasterCommit()).sha(),
-      0 // gives error if the branch already exists
-    );
-    await folderRepo.checkoutBranch(folderBranchName);
-
-    const testFile1 = (await fs.readdir(
-      path.resolve(folderRepoPath, folderPaths[0])
-    ))[0];
-    const testFile1Path = path.resolve(
-      folderRepoPath,
-      folderPaths[0],
-      testFile1
-    );
-    const testFile2 = (await fs.readdir(
-      path.resolve(folderRepoPath, folderPaths[1])
-    ))[0];
-    const testFile2Path = path.resolve(
-      folderRepoPath,
-      folderPaths[1],
-      testFile2
-    );
-    await fs.remove(testFile1Path);
-    await fs.remove(testFile2Path);
-
-    const signature = mainRepo.defaultSignature();
-    let index = await folderRepo.refreshIndex();
-    await index.remove(path.relative(folderRepoPath, testFile1Path), 0);
-    await index.remove(path.relative(folderRepoPath, testFile2Path), 0);
-    await index.write();
-    const oid = await index.writeTree();
-    const parent = await folderRepo.getCommit(
-      await Git.Reference.nameToId(folderRepo, "HEAD")
-    );
-    const addedFiles = await folderRepo.createCommit(
-      "HEAD",
-      signature,
-      signature,
-      commitMsg,
-      oid,
-      [parent]
-    );
-    const pushCmd = `push --branch ${branchName} --message ${commitMsg} --author-name ${authorName} --author-email ${authorEmail}`;
-    await parseArgsAndExecute(folderRepoPath, pushCmd.split(" "));
-
-    const config = await fs.readJson(
-      path.resolve(folderRepoPath, CONFIG_FILENAME)
-    );
-    const expected = Object.assign(config, {
-      branchInMain: { [folderBranchName]: branchName }
-    });
-    expect(
-      await fs.readJson(path.resolve(folderRepoPath, CONFIG_FILENAME))
-    ).toEqual(expected);
-  });
-
   test("does not push if master branch is checked out", async () => {
     expect.assertions(1);
     await folderRepo.checkoutBranch("master");

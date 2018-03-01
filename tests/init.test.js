@@ -77,7 +77,6 @@ describe("Folder repo is forked correcly", () => {
       mainRepoPath: path.relative(folderRepoPath, mainRepoPath),
       folders: folderPaths,
       branch: branchName,
-      branchInMain: {},
       ignore: [CONFIG_FILENAME]
     };
     expect(
