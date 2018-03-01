@@ -17,6 +17,7 @@ let folderRepo;
 const branchName = "master";
 
 beforeEach(async done => {
+  jest.setTimeout(10000);
   const initCmd = `init ${folderRepoRelativePath} --repo ${repoToClone} --folder ${
     folderPaths[0]
   } --folder ${folderPaths[1]} --branch ${branchName}`;
@@ -67,7 +68,7 @@ describe("Folder repo is forked correcly", () => {
   });
   test("config file is created correctly", async () => {
     const expected = {
-      mainRepoPath: path.relative(folderRepoPath, mainRepoPath),
+      repoUrl: repoToClone,
       folders: folderPaths,
       branch: branchName,
       ignore: [CONFIG_FILENAME]
