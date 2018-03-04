@@ -24,7 +24,7 @@ const authorName = "Murcul";
 const authorEmail = "murcul@murcul.com";
 
 beforeEach(async done => {
-  jest.setTimeout(10000);
+  jest.setTimeout(100000);
   const initCmd = `init ${folderRepoRelativePath} --repo ${repoToClone} --folder ${
     folderPaths[0]
   } --folder ${folderPaths[1]} --branch ${branchName}`;
@@ -45,6 +45,7 @@ afterAll(async done => {
 });
 
 describe("Main repo is synced properly with folder repo", () => {
+  jest.setTimeout(100000);
   test("added files in folder repo are properly synced to the main folder", async () => {
     const branchName = "test-branch-1";
     const commitMsg = "added some files";
