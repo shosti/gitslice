@@ -7,7 +7,7 @@ const { getCurBranch, getAllFiles, addCommmitMsgPrefix } = require("../lib/utils
 
 const folderRepoRelativePath = "./repos/init";
 const folderRepoPath = path.resolve(__dirname, folderRepoRelativePath);
-const mainRepoPath = path.resolve(folderRepoPath, TEMPORARY_FOLDER_NAME);
+const mainRepoPath = TEMPORARY_FOLDER_NAME;
 
 const repoToClone = "https://github.com/arslanarshad31/trello-react.git";
 const folderPaths = ["public", "src/reducers"]; // to be modified with the repo

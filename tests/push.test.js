@@ -11,7 +11,7 @@ const fs = require("fs-extra");
 
 const folderRepoRelativePath = "./repos/init";
 const folderRepoPath = path.resolve(__dirname, folderRepoRelativePath);
-const mainRepoPath = path.resolve(folderRepoPath, TEMPORARY_FOLDER_NAME);
+const mainRepoPath = TEMPORARY_FOLDER_NAME;
 
 const repoToClone = "https://github.com/arslanarshad31/trello-react.git";
 const folderPaths = ["public", "src/reducers"]; // to be modified with the repo
@@ -200,7 +200,7 @@ describe("Main repo is synced properly with folder repo", () => {
   //     folderPaths[0],
   //     "testFile1.txt"
   //   );
-    
+
   //   // to placed in main repo
   //   const testFile2Path = path.resolve(
   //     mainRepoPath,
@@ -405,7 +405,7 @@ describe("Main repo is synced properly with folder repo", () => {
   test("commits with the correct signature in the main repo", async () => {
     const branchName = "test-branch-6";
     const commitMsg = "added-some-files";
-    
+
     const newBranch = await folderRepo.createBranch(
       branchName,
       (await folderRepo.getMasterCommit()).sha(),
@@ -487,6 +487,4 @@ describe("Main repo is synced properly with folder repo", () => {
     expect(await getCurBranch(mainRepo)).toEqual(branchName);
     expect((await mainRepo.getHeadCommit()).message()).toEqual(commitMsg);
   });
-
-
 });
