@@ -1,6 +1,7 @@
 const parseArgsAndExecute = require("../lib");
 const { CONFIG_FILENAME, TEMPORARY_FOLDER_NAME } = require("../lib/constants");
 
+jest.mock("../lib/utils");
 const utils = require("../lib/utils");
 const Git = require("nodegit");
 const path = require("path");
@@ -21,8 +22,6 @@ const authorName = "Murcul";
 const authorEmail = "murcul@murcul.com";
 
 const { addCommmitMsgPrefix, removeCommitMsgPrefix, getCurBranch } = utils;
-
-jest.mock("../lib/utils");
 
 beforeEach(async done => {
   jest.setTimeout(100000);
