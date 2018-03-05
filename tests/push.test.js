@@ -7,7 +7,7 @@ const Git = require("nodegit");
 const path = require("path");
 const fs = require("fs-extra");
 
-const folderRepoRelativePath = "./repos/init";
+const folderRepoRelativePath = "./repos/push";
 const folderRepoPath = path.resolve(__dirname, folderRepoRelativePath);
 const mainRepoPath = TEMPORARY_FOLDER_NAME;
 
@@ -171,8 +171,8 @@ describe("Main repo is synced properly with folder repo", () => {
     );
     const pushCmd = `push --branch ${branchName} --message ${commitMsg} --author-name ${authorName} --author-email ${authorEmail}`;
     await parseArgsAndExecute(folderRepoPath, pushCmd.split(" "));
-    expect(utils.pushTempRepo).toHaveBeenCalledTimes(1); 
-    utils.pushTempRepo.mockReset();   
+    expect(utils.pushTempRepo).toHaveBeenCalledTimes(1);
+    utils.pushTempRepo.mockReset();
 
     expect(
       await fs.exists(testFile1Path.replace(folderRepoPath, mainRepoPath))
@@ -280,7 +280,7 @@ describe("Main repo is synced properly with folder repo", () => {
       await parseArgsAndExecute(folderRepoPath, pushCmd.split(" "));
     } catch (e) {
       expect(utils.pushTempRepo).not.toHaveBeenCalled();
-      utils.pushTempRepo.mockReset(); 
+      utils.pushTempRepo.mockReset();
       expect(e).toBe("Error: cannot push from master branch");
     }
   });

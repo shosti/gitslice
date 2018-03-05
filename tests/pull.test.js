@@ -5,7 +5,7 @@ const path = require("path");
 const fs = require("fs-extra");
 const { getCurBranch, getAllFiles, addCommmitMsgPrefix } = require("../lib/utils");
 
-const folderRepoRelativePath = "./repos/init";
+const folderRepoRelativePath = "./repos/pull";
 const folderRepoPath = path.resolve(__dirname, folderRepoRelativePath);
 const mainRepoPath = TEMPORARY_FOLDER_NAME;
 
