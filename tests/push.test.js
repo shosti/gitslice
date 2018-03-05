@@ -1,10 +1,7 @@
 const parseArgsAndExecute = require("../lib");
 const { CONFIG_FILENAME, TEMPORARY_FOLDER_NAME } = require("../lib/constants");
-const {
-  addCommmitMsgPrefix,
-  removeCommitMsgPrefix,
-  getCurBranch
-} = require("../lib/utils");
+
+const utils = require("../lib/utils");
 const Git = require("nodegit");
 const path = require("path");
 const fs = require("fs-extra");
@@ -22,6 +19,10 @@ const branchName = "master";
 
 const authorName = "Murcul";
 const authorEmail = "murcul@murcul.com";
+
+const { addCommmitMsgPrefix, removeCommitMsgPrefix, getCurBranch } = utils;
+
+jest.mock("../lib/utils");
 
 beforeEach(async done => {
   jest.setTimeout(100000);
@@ -99,6 +100,7 @@ describe("Main repo is synced properly with folder repo", () => {
     );
     const pushCmd = `push --branch ${branchName} --message ${commitMsg} --author-name ${authorName} --author-email ${authorEmail}`;
     await parseArgsAndExecute(folderRepoPath, pushCmd.split(" "));
+    expect(utils.pushTempRepo).toHaveBeenCalled();
 
     expect(
       await fs.readFile(
