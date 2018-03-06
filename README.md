@@ -3,7 +3,7 @@
 
 ## Please be aware that one of git-slice dependencies `nodegit` doesnot properly work with `Node 9.x`, therefore until this problem is resolved we recommend that you to use `Node 8.x` instead.
 
-This utility can be used to take out foler from a git repository, fork it into a new git repository and eventually provide commands to sync changes between both the repositories.
+This utility can be used to take out folder(s) from a git repository, fork it into a new git repository and eventually provide commands to sync changes between both repositories.
 
 ## Commands
 ### git-slice init
@@ -35,7 +35,7 @@ If `main-repo/src/frontend/public` is updated, this command can be used to sync 
 ### git-slice push
 ```sh
 $ cd frontend-public
-$ git-slice push --branch updated-photos -message "changed public photos" --author-name "XYZ" --author-email "xyz@xyz.com"
+$ git-slice push --branch updated-photos --message "changed public photos" --author-name "XYZ" --author-email "xyz@xyz.com"
 ```
 
 #### Options
