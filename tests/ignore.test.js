@@ -3,12 +3,11 @@ const fs = require("fs-extra");
 const path = require("path");
 const parseArgsAndExecute = require("../lib");
 const _ = require('lodash');
-const { CONFIG_FILENAME } = require("../lib/constants");
+const { CONFIG_FILENAME, TEMPORARY_FOLDER_NAME } = require("../lib/constants");
 
-const mainRepoRelativePath = "./repos/ignore/main";
-const folderRepoRelativePath = "./repos/ignore/folder";
-const mainRepoPath = path.resolve(__dirname, mainRepoRelativePath);
+const folderRepoRelativePath = "./repos/ignore";
 const folderRepoPath = path.resolve(__dirname, folderRepoRelativePath);
+const mainRepoPath = TEMPORARY_FOLDER_NAME;
 
 const repoToClone = "https://github.com/arslanarshad31/trello-react.git";
 const folderPaths = ["public", "src/reducers"]; // to be modified with the repo
@@ -19,7 +18,7 @@ const branchName = "master";
 beforeAll(async done => {
   jest.setTimeout(10000);
   await Git.Clone.clone(repoToClone, mainRepoPath);
-  const initCmd = `init ${folderRepoRelativePath} --repo ${mainRepoRelativePath} --folder ${
+  const initCmd = `init ${folderRepoRelativePath} --repo ${repoToClone} --folder ${
     folderPaths[0]
   } --folder ${folderPaths[1]} --branch ${branchName}`;
   await parseArgsAndExecute(__dirname, initCmd.split(" "));
