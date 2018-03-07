@@ -1,9 +1,7 @@
 const Git = require("nodegit");
 const fs = require("fs-extra");
 const path = require("path");
-const parseArgsAndExecute = require("../lib");
-const _ = require('lodash');
-const { CONFIG_FILENAME } = require("../lib/constants");
+const parseArgsAndExecute  = require("../lib");
 
 const mainRepoRelativePath = "./repos/utils/main";
 const folderRepoRelativePath = "./repos/utils/folder";
@@ -26,30 +24,26 @@ let mainRepo;
 const branchName = "master";
 const COMMIT_MSG_PREFIX = "git-slice:";
 
-beforeAll(async done => {
+beforeAll(async () => {
   jest.setTimeout(10000);
   await Git.Clone.clone(repoToClone, mainRepoPath);
-  done();
 });
 
-beforeEach(async done => {
+beforeEach(async () => {
   const initCmd = `init ${folderRepoRelativePath} --repo ${mainRepoRelativePath} --folder ${
     folderPaths[0]
   } --folder ${folderPaths[1]} --branch ${branchName}`;
   await parseArgsAndExecute(__dirname, initCmd.split(" "));
   mainRepo = await Git.Repository.open(mainRepoPath);
   folderRepo = await Git.Repository.open(folderRepoPath);
-  done();
 });
 
-afterEach(async done => {
+afterEach(async () => {
   await fs.remove(folderRepoPath);
-  done();
 });
 
-afterAll(async done => {
+afterAll(async () => {
   await fs.remove(mainRepoPath);
-  done();
 });
 
 describe("ensureArray", () => {
@@ -60,7 +54,7 @@ describe("ensureArray", () => {
   });
 
   it("should convert primitive to array", () => {
-    expect(ensureArray(5)).toEqual([5])
+    expect(ensureArray(5)).toEqual([5]);
   });
 
   it("should convert objects to array", () => {
@@ -70,12 +64,11 @@ describe("ensureArray", () => {
 });
 
 describe("getCurBranch", () => {
-  it("should return the master branch", async(done) => {
+  it("should return the master branch", async() => {
     expect(await getCurBranch(folderRepo)).toBe("master");
-    done();
   });
 
-  it("should return current branch name after successful checkout", async(done) => {
+  it("should return current branch name after successful checkout", async() => {
     const testBranch = "test-branch";
     await folderRepo.createBranch(
       testBranch,
@@ -85,7 +78,6 @@ describe("getCurBranch", () => {
     await folderRepo.checkoutBranch(testBranch);
     await folderRepo.setHead(`refs/heads/${testBranch}`);
     expect(await getCurBranch(folderRepo)).toBe("test-branch");
-    done();
   });
 });
 
@@ -111,23 +103,31 @@ describe("getAllFiles", () => {
   const test1Text = "Test 1!";
   const test2Text = "Test 2!";
 
-  it("should return the current files in the directory", async(done) => {
+  it("should return the current files in the directory", async() => {
     allFiles = await getAllFiles(folderRepoPath);
     expect(allFiles.length).toBe(26);
-    done();
   });
 
-  it("should retur all files in a directory", async(done) => {
+  it("should return all files in a directory", async() => {
     await fs.outputFile(test1Path, test1Text);
     await fs.outputFile(test2Path, test2Text);
     allFiles = await getAllFiles(folderRepoPath);
     expect(allFiles.length).toBe(28);
-    expect(await fs.readFile(test1Path, 'utf8')).toBe('Test 1!')
-    expect(await fs.readFile(test2Path, 'utf8')).toBe('Test 2!')    
-    done();
+    expect(await fs.readFile(test1Path, 'utf8')).toBe('Test 1!');    
+    expect(await fs.readFile(test2Path, 'utf8')).toBe('Test 2!') ;   
   });
+
+  it("should return an empty array", async() => {
+    allFiles = await getAllFiles(folderRepoPath);
+    expect(allFiles).toBe([]);
+  });
+
+  it("should throw an error", async() => {
+    allFiles = await getAllFiles('');
+    expect(allFiles).toThrow();
+  })
 });
 
-xdescribe("getLastGitSliceCommitHash", () => {
-  
+xdescribe("getLastGitSliceCommitHash", async () => {
+  const commitHash = await folderRepo.getMasterCommit()
 });
