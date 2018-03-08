@@ -133,13 +133,16 @@ describe("getAllFiles", () => {
 
   it("should return an empty array", async() => {
     await fs.remove(folderRepoPath);
-    const currentDir = path.resolve(__dirname, 'utils/test')
+    const currentDir = path.resolve(__dirname, 'repos/utils/test')
     fs.ensureDirSync(currentDir);    
     allFiles = await getAllFiles(currentDir);
     expect(allFiles).toEqual([]);
   });
 });
 
-xdescribe("getLastGitSliceCommitHash", async () => {
-
+describe("getLastGitSliceCommitHash", () => {
+  it("should return last gitslice commit hash", async() => {
+    const expectedCommitHash = (await mainRepo.getCommit(await Git.Reference.nameToId(mainRepo, "HEAD"))).sha();
+    expect(await getLastGitSliceCommitHash(folderRepo)).toBe(expectedCommitHash);
+  });
 });
