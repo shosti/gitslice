@@ -141,8 +141,10 @@ describe("getAllFiles", () => {
 });
 
 describe("getLastGitSliceCommitHash", () => {
-  it("should return last gitslice commit hash", async() => {
-    const expectedCommitHash = (await mainRepo.getCommit(await Git.Reference.nameToId(mainRepo, "HEAD"))).sha();
+  it("should return last git slice commit hash", async() => {
+    const expectedCommitHash = (await mainRepo.getCommit(
+      await Git.Reference.nameToId(mainRepo, "HEAD")
+    )).sha();
     expect(await getLastGitSliceCommitHash(folderRepo)).toBe(expectedCommitHash);
   });
 });
