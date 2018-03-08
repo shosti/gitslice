@@ -16,25 +16,39 @@ const {
   getLastGitSliceCommitHash
 } = require("../lib/utils");
 
-const repoToClone = "https://github.com/arslanarshad31/trello-react.git";
 const folderPaths = ["public", "src/reducers"]; // to be modified with the repo
 const folderPathRegExp = new RegExp(folderPaths.join("|^"));
 let folderRepo;
 let mainRepo;
 const branchName = "master";
 const COMMIT_MSG_PREFIX = "git-slice:";
+const fileName = 'public/initial.txt';
+const fileContent = 'Hello World';
 
 beforeAll(async () => {
-  jest.setTimeout(10000);
-  await Git.Clone.clone(repoToClone, mainRepoPath);
+  mainRepo = await Git.Repository.init(mainRepoPath, 0);
+  await fs.outputFile(path.resolve(mainRepoPath, fileName), fileContent);
+  let index = await mainRepo.refreshIndex();
+  await index.addByPath(fileName);
+  await index.write();
+  const oid = await index.writeTree();
+  const signature = mainRepo.defaultSignature();
+  await mainRepo.setHead(`refs/heads/${branchName}`);
+  await mainRepo.createCommit(
+    "HEAD",
+    signature,
+    signature,
+    `initial commit`,
+    oid,
+    []
+  );
 });
 
 beforeEach(async () => {
   const initCmd = `init ${folderRepoRelativePath} --repo ${mainRepoRelativePath} --folder ${
     folderPaths[0]
-  } --folder ${folderPaths[1]} --branch ${branchName}`;
+  } --branch ${branchName}`;
   await parseArgsAndExecute(__dirname, initCmd.split(" "));
-  mainRepo = await Git.Repository.open(mainRepoPath);
   folderRepo = await Git.Repository.open(folderRepoPath);
 });
 
@@ -105,29 +119,27 @@ describe("getAllFiles", () => {
 
   it("should return the current files in the directory", async() => {
     allFiles = await getAllFiles(folderRepoPath);
-    expect(allFiles.length).toBe(26);
+    expect(allFiles.length).toBe(16);
   });
 
   it("should return all files in a directory", async() => {
     await fs.outputFile(test1Path, test1Text);
     await fs.outputFile(test2Path, test2Text);
     allFiles = await getAllFiles(folderRepoPath);
-    expect(allFiles.length).toBe(28);
+    expect(allFiles.length).toBe(18);
     expect(await fs.readFile(test1Path, 'utf8')).toBe('Test 1!');    
     expect(await fs.readFile(test2Path, 'utf8')).toBe('Test 2!') ;   
   });
 
   it("should return an empty array", async() => {
-    allFiles = await getAllFiles(folderRepoPath);
-    expect(allFiles).toBe([]);
+    await fs.remove(folderRepoPath);
+    const currentDir = path.resolve(__dirname, 'utils/test')
+    fs.ensureDirSync(currentDir);    
+    allFiles = await getAllFiles(currentDir);
+    expect(allFiles).toEqual([]);
   });
-
-  it("should throw an error", async() => {
-    allFiles = await getAllFiles('');
-    expect(allFiles).toThrow();
-  })
 });
 
 xdescribe("getLastGitSliceCommitHash", async () => {
-  const commitHash = await folderRepo.getMasterCommit()
+
 });
