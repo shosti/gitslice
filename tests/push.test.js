@@ -1,5 +1,5 @@
 const parseArgsAndExecute = require("../lib");
-const { CONFIG_FILENAME, TEMPORARY_FOLDER_NAME } = require("../lib/constants");
+const { CONFIG_FILENAME } = require("../lib/constants");
 
 jest.mock("../lib/utils");
 const utils = require("../lib/utils");
@@ -9,19 +9,24 @@ const fs = require("fs-extra");
 
 const folderRepoRelativePath = "./repos/push";
 const folderRepoPath = path.resolve(__dirname, folderRepoRelativePath);
-const mainRepoPath = TEMPORARY_FOLDER_NAME;
 
 const repoToClone = "https://github.com/arslanarshad31/trello-react.git";
 const folderPaths = ["public", "src/reducers"]; // to be modified with the repo
 const folderPathRegExp = new RegExp(folderPaths.join("|^"));
+const branchName = "master";
+
+let mainRepoPath;
 let mainRepo;
 let folderRepo;
-const branchName = "master";
 
 const authorName = "Murcul";
 const authorEmail = "murcul@murcul.com";
 
-const { addCommmitMsgPrefix, removeCommitMsgPrefix, getCurBranch } = utils;
+const { addCommmitMsgPrefix, removeCommitMsgPrefix, getCurBranch, getTempRepoPath } = utils;
+
+beforeAll(() => {
+  mainRepoPath = getTempRepoPath(repoToClone);
+});
 
 beforeEach(async done => {
   jest.setTimeout(100000);

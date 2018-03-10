@@ -1,21 +1,25 @@
 const parseArgsAndExecute = require("../lib");
-const { CONFIG_FILENAME, TEMPORARY_FOLDER_NAME } = require("../lib/constants");
+const { CONFIG_FILENAME } = require("../lib/constants");
 const Git = require("nodegit");
 const path = require("path");
 const fs = require("fs-extra");
-const { getCurBranch, getAllFiles, addCommmitMsgPrefix } = require("../lib/utils");
+const { getCurBranch, getAllFiles, addCommmitMsgPrefix, getTempRepoPath } = require("../lib/utils");
 
 const folderRepoRelativePath = "./repos/pull";
 const folderRepoPath = path.resolve(__dirname, folderRepoRelativePath);
-const mainRepoPath = TEMPORARY_FOLDER_NAME;
 
 const repoToClone = "https://github.com/arslanarshad31/trello-react.git";
 const folderPaths = ["public", "src/reducers"]; // to be modified with the repo
 const folderPathRegExp = new RegExp(folderPaths.join("|^"));
-let mainRepo;
-let folderRepo;
 const branchName = "master";
 
+let mainRepoPath;
+let mainRepo;
+let folderRepo;
+
+beforeAll(() => {
+  mainRepoPath = getTempRepoPath(repoToClone);
+});
 
 beforeEach(async done => {
   jest.setTimeout(10000);
