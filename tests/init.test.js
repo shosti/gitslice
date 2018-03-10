@@ -1,30 +1,29 @@
 const parseArgsAndExecute = require("../lib");
 const { CONFIG_FILENAME } = require("../lib/constants");
-const { addCommmitMsgPrefix } = require('../lib/utils');
+const { addCommmitMsgPrefix, getTempRepoPath } = require("../lib/utils");
 const Git = require("nodegit");
 const path = require("path");
 const fs = require("fs-extra");
 
-const mainRepoRelativePath = "./repos/init/main";
-const folderRepoRelativePath = "./repos/init/folder";
-const mainRepoPath = path.resolve(__dirname, mainRepoRelativePath);
+const folderRepoRelativePath = "./repos/init";
 const folderRepoPath = path.resolve(__dirname, folderRepoRelativePath);
 
 const repoToClone = "https://github.com/arslanarshad31/trello-react.git";
 const folderPaths = ["public", "src/reducers"]; // to be modified with the repo
 const folderPathRegExp = new RegExp(folderPaths.join("|^"));
-let mainRepo;
-let folderRepo;
 const branchName = "master";
 
-beforeAll(async done => {
-  jest.setTimeout(10000);
-  await Git.Clone.clone(repoToClone, mainRepoPath);
-  done();
+let mainRepoPath;
+let mainRepo;
+let folderRepo;
+
+beforeAll(() => {
+  mainRepoPath = getTempRepoPath(repoToClone);
 });
 
 beforeEach(async done => {
-  const initCmd = `init ${folderRepoRelativePath} --repo ${mainRepoRelativePath} --folder ${
+  jest.setTimeout(10000);
+  const initCmd = `init ${folderRepoRelativePath} --repo ${repoToClone} --folder ${
     folderPaths[0]
   } --folder ${folderPaths[1]} --branch ${branchName}`;
   await parseArgsAndExecute(__dirname, initCmd.split(" "));
@@ -67,17 +66,18 @@ describe("Folder repo is forked correcly", () => {
     ).toEqual(filesToCopy.map(({ fileSize, path }) => ({ fileSize, path })));
   });
   test("proper commit is made in the forked folder", async () => {
-    const expected = addCommmitMsgPrefix((await mainRepo.getMasterCommit()).sha());
+    const expected = addCommmitMsgPrefix(
+      (await mainRepo.getMasterCommit()).sha()
+    );
     const output = (await folderRepo.getMasterCommit()).message();
     expect(output).toBe(expected);
     await fs.remove(folderRepoPath);
   });
   test("config file is created correctly", async () => {
     const expected = {
-      mainRepoPath: path.relative(folderRepoPath, mainRepoPath),
+      repoUrl: repoToClone,
       folders: folderPaths,
       branch: branchName,
-      branchInMain: {},
       ignore: [CONFIG_FILENAME]
     };
     expect(
