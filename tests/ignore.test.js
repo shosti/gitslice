@@ -20,7 +20,6 @@ let mainRepoPath;
 beforeAll(async done => {
   jest.setTimeout(10000);
   mainRepoPath = getTempRepoPath(repoToClone);
-  await Git.Clone.clone(repoToClone, mainRepoPath);
   const initCmd = `init ${folderRepoRelativePath} --repo ${repoToClone} --folder ${
     folderPaths[0]
   } --folder ${folderPaths[1]} --branch ${branchName}`;
