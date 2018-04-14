@@ -3,13 +3,19 @@
   "version": "1.5.2",
   "description": "",
   "main": "lib/index.js",
-  "scripts": {
-    "test": "jest"
-  },
   "author": "",
   "license": "MIT",
   "bin": {
     "git-slice": "./bin/cli.js"
+  },
+  "scripts": {
+    "test": "jest",
+    "prettier":
+      "prettier --single-quote --write --no-semi '{bin,lib,tests,__{tests,mocks}__}/**/*.js'",
+    "precommit": "lint-staged"
+  },
+  "lint-staged": {
+    "*.{js,json,css,md}": ["yarn run prettier", "git add"]
   },
   "dependencies": {
     "command-line-usage": "^4.0.1",
@@ -21,6 +27,9 @@
   },
   "devDependencies": {
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "jest": "^21.0.1"
+    "husky": "^0.14.3",
+    "jest": "^21.0.1",
+    "lint-staged": "^7.0.2",
+    "prettier": "1.11.1"
   }
 }
