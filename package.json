@@ -3,6 +3,11 @@
   "version": "1.6.0",
   "description": "",
   "main": "lib/index.js",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watchAll",
+    "test:coverage": "jest --coverage"
+  },
   "author": "",
   "license": "MIT",
   "bin": {
