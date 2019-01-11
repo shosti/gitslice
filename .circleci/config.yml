@@ -36,11 +36,6 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
 
-        # run prettier!
-      - run:
-          name: Prettier Check
-          command: npm run prettier-check
-
       # run tests!
       - run:
           name: Test
