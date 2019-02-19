@@ -2,28 +2,29 @@ const Git = require('nodegit')
 const fs = require('fs-extra')
 const path = require('path')
 const parseArgsAndExecute = require('../lib')
-
-// Path to the new temporary git repository
-const mainRepoRelativePath = './tmp/main'
-const folderRepoRelativePath = './tmp/main/folders'
-const mainRepoPath = path.resolve(__dirname, mainRepoRelativePath)
-const folderRepoPath = path.resolve(__dirname, folderRepoRelativePath)
 const {
   getAllFiles,
   getCurBranch,
   addCommmitMsgPrefix,
   removeCommitMsgPrefix,
   ensureArray,
-  getLastGitSliceCommitHash
+  getLastGitSliceCommitHash,
+  getTempRepoPath
 } = require('../lib/utils')
 
-const folderPaths = ['main/folders/folder1', 'main/folders/folder2'] // to be modified with the repo
+// Path to the new temporary git repository
+const mainRepoRelativePath = getTempRepoPath('utils')
+const folderRepoRelativePath = './tmp/utils'
+const mainRepoPath = path.resolve(__dirname, mainRepoRelativePath)
+const folderRepoPath = path.resolve(__dirname, folderRepoRelativePath)
+
+const folderPaths = ['folder1', 'folder2'] // to be modified with the repo
 let folderRepo
 let mainRepo
 const branchName = 'master'
 const COMMIT_MSG_PREFIX = 'git-slice:'
-const filePath = 'main/folders/folder1/foo.txt'
-const filePath2 = 'main/folders/folder2/foo.txt'
+const filePath = 'folders/folder1/foo.txt'
+const filePath2 = 'folders/folder2/foo.txt'
 const fileContent = 'Hello World'
 
 beforeAll(async () => {
@@ -123,14 +124,14 @@ describe('getAllFiles', () => {
 
   it('should return the current files in the directory', async () => {
     allFiles = await getAllFiles(folderRepoPath)
-    expect(allFiles.length).toBe(18)
+    expect(allFiles.length).toBe(13)
   })
 
   it('should return all files in a directory', async () => {
     await fs.outputFile(test1Path, test1Text)
     await fs.outputFile(test2Path, test2Text)
     allFiles = await getAllFiles(folderRepoPath)
-    expect(allFiles.length).toBe(20)
+    expect(allFiles.length).toBe(15)
     expect(await fs.readFile(test1Path, 'utf8')).toBe('Test 1!')
     expect(await fs.readFile(test2Path, 'utf8')).toBe('Test 2!')
   })

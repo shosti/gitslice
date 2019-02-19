@@ -11,31 +11,33 @@ const folderRepoPath = path.resolve(__dirname, folderRepoRelativePath)
 
 const repoToClone = 'https://github.com/murcul/git-slice.git'
 const folderPaths = ['lib', 'bin'] // to be modified with the repo
-const folderPathRegExp = new RegExp(folderPaths.join('|^'))
 const branchName = 'master'
 
 let folderRepo
 let mainRepoPath
 
-beforeAll(async done => {
+beforeEach(async done => {
+  if (mainRepoPath) {
+    await fs.remove(mainRepoPath)
+  }
   jest.setTimeout(10000)
   mainRepoPath = getTempRepoPath(repoToClone)
   const initCmd = `init ${folderRepoRelativePath} --repo ${repoToClone} --folder ${
     folderPaths[0]
   } --folder ${folderPaths[1]} --branch ${branchName}`
+
   await parseArgsAndExecute(__dirname, initCmd.split(' '))
   folderRepo = await Git.Repository.open(folderRepoPath)
   done()
 })
-
-afterAll(async done => {
+afterEach(async done => {
   await fs.remove(folderRepoPath)
   await fs.remove(mainRepoPath)
   done()
 })
 
 describe('Modifies ignore array in config file', () => {
-  test('correctly detects same file in for both operations', async () => {
+  it('correctly detects same file in for both operations', async () => {
     expect.assertions(2)
     const initialConfig = await fs.readJson(
       path.resolve(folderRepoPath, CONFIG_FILENAME)
@@ -54,7 +56,7 @@ describe('Modifies ignore array in config file', () => {
     }
   })
 
-  test('correctly performes the add operation', async () => {
+  it('correctly performes the add operation', async () => {
     const intialIgnore = (await fs.readJson(
       path.resolve(folderRepoPath, CONFIG_FILENAME)
     )).ignore
@@ -69,18 +71,22 @@ describe('Modifies ignore array in config file', () => {
     expect(actualCommitMsg).toEqual(`updated ${CONFIG_FILENAME}`)
   })
 
-  test('correctly performes the remove operation', async () => {
+  it('correctly performes the remove operation', async () => {
+    const fileToUse = 'test-file-3.txt'
+    const ignoreAddCmd = `ignore --add ${fileToUse}`
+    await parseArgsAndExecute(folderRepoPath, ignoreAddCmd.split(' '))
+
     const intialIgnore = (await fs.readJson(
       path.resolve(folderRepoPath, CONFIG_FILENAME)
     )).ignore
-    const fileTorRemove = 'test-file-3.txt'
-    const ignoreCmd = `ignore --remove ${fileTorRemove}`
-    await parseArgsAndExecute(folderRepoPath, ignoreCmd.split(' '))
+
+    const ignoreRemoveCmd = `ignore --remove ${fileToUse}`
+    await parseArgsAndExecute(folderRepoPath, ignoreRemoveCmd.split(' '))
     const updatedIgnore = (await fs.readJson(
       path.resolve(folderRepoPath, CONFIG_FILENAME)
     )).ignore
     const actualCommitMsg = (await folderRepo.getMasterCommit()).message()
-    expect(intialIgnore).toEqual([...updatedIgnore, fileTorRemove])
+    expect(intialIgnore).toEqual([...updatedIgnore, fileToUse])
     expect(actualCommitMsg).toEqual(`updated ${CONFIG_FILENAME}`)
   })
 })
