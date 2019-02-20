@@ -5,7 +5,6 @@ const path = require('path')
 const fs = require('fs-extra')
 const {
   getCurBranch,
-  getAllFiles,
   addCommmitMsgPrefix,
   getTempRepoPath
 } = require('../lib/utils')

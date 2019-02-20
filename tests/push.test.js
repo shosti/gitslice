@@ -1,12 +1,16 @@
 const parseArgsAndExecute = require('../lib')
-const { CONFIG_FILENAME } = require('../lib/constants')
 
-jest.mock('../lib/utils')
-const utils = require('../lib/utils')
 const Git = require('nodegit')
 const path = require('path')
 const fs = require('fs-extra')
 
+jest.mock('../lib/utils')
+const {
+  removeCommitMsgPrefix,
+  getCurBranch,
+  getTempRepoPath,
+  pushTempRepo
+} = require('../lib/utils')
 const folderRepoRelativePath = './tmp/push'
 const folderRepoPath = path.resolve(__dirname, folderRepoRelativePath)
 
@@ -21,13 +25,6 @@ let folderRepo
 const authorName = 'Murcul'
 const authorEmail = 'murcul@murcul.com'
 
-const {
-  addCommmitMsgPrefix,
-  removeCommitMsgPrefix,
-  getCurBranch,
-  getTempRepoPath
-} = utils
-
 beforeAll(() => {
   mainRepoPath = getTempRepoPath(repoToClone)
 })
@@ -37,6 +34,7 @@ beforeEach(async done => {
   const initCmd = `init ${folderRepoRelativePath} --repo ${repoToClone} --folder ${
     folderPaths[0]
   } --folder ${folderPaths[1]} --branch ${branchName}`
+
   await parseArgsAndExecute(__dirname, initCmd.split(' '))
   mainRepo = await Git.Repository.open(mainRepoPath)
   folderRepo = await Git.Repository.open(folderRepoPath)
@@ -59,7 +57,7 @@ describe('Main repo is synced properly with folder repo', () => {
     const branchName = 'test-branch-1'
     const commitMsg = 'added some files'
 
-    const newBranch = await folderRepo.createBranch(
+    await folderRepo.createBranch(
       branchName,
       (await folderRepo.getMasterCommit()).sha(),
       0 // gives error if the branch already exists
@@ -108,8 +106,8 @@ describe('Main repo is synced properly with folder repo', () => {
     )
     const pushCmd = `push --branch ${branchName} --message ${commitMsg} --author-name ${authorName} --author-email ${authorEmail}`
     await parseArgsAndExecute(folderRepoPath, pushCmd.split(' '))
-    expect(utils.pushTempRepo).toHaveBeenCalledTimes(1)
-    utils.pushTempRepo.mockReset()
+    expect(pushTempRepo).toHaveBeenCalledTimes(1)
+    pushTempRepo.mockReset()
 
     expect(
       await fs.readFile(
@@ -180,8 +178,8 @@ describe('Main repo is synced properly with folder repo', () => {
     )
     const pushCmd = `push --branch ${branchName} --message ${commitMsg} --author-name ${authorName} --author-email ${authorEmail}`
     await parseArgsAndExecute(folderRepoPath, pushCmd.split(' '))
-    expect(utils.pushTempRepo).toHaveBeenCalledTimes(1)
-    utils.pushTempRepo.mockReset()
+    expect(pushTempRepo).toHaveBeenCalledTimes(1)
+    pushTempRepo.mockReset()
 
     expect(
       await fs.exists(testFile1Path.replace(folderRepoPath, mainRepoPath))
@@ -265,8 +263,8 @@ describe('Main repo is synced properly with folder repo', () => {
     )
     const pushCmd = `push --branch ${branchName} --message ${commitMsg} --author-name ${authorName} --author-email ${authorEmail}`
     await parseArgsAndExecute(folderRepoPath, pushCmd.split(' '))
-    expect(utils.pushTempRepo).toHaveBeenCalledTimes(1)
-    utils.pushTempRepo.mockReset()
+    expect(pushTempRepo).toHaveBeenCalledTimes(1)
+    pushTempRepo.mockReset()
 
     expect(
       await fs.readFile(
@@ -288,8 +286,8 @@ describe('Main repo is synced properly with folder repo', () => {
     try {
       await parseArgsAndExecute(folderRepoPath, pushCmd.split(' '))
     } catch (e) {
-      expect(utils.pushTempRepo).not.toHaveBeenCalled()
-      utils.pushTempRepo.mockReset()
+      expect(pushTempRepo).not.toHaveBeenCalled()
+      pushTempRepo.mockReset()
       expect(e).toBe('Error: cannot push from master branch')
     }
   })
@@ -318,8 +316,8 @@ describe('Main repo is synced properly with folder repo', () => {
       await parseArgsAndExecute(folderRepoPath, pushCmd.split(' '))
     } catch (e) {
       expect(e).toBe('Error: cannot push with uncommitted changes')
-      expect(utils.pushTempRepo).not.toHaveBeenCalled()
-      utils.pushTempRepo.mockReset()
+      expect(pushTempRepo).not.toHaveBeenCalled()
+      pushTempRepo.mockReset()
     }
   })
 
@@ -401,8 +399,8 @@ describe('Main repo is synced properly with folder repo', () => {
     await folderRepo.checkoutBranch(branchName)
     const pushCmd = `push --branch ${branchName} --message ${commitMsg} --author-name ${authorName} --author-email ${authorEmail}`
     await parseArgsAndExecute(folderRepoPath, pushCmd.split(' '))
-    expect(utils.pushTempRepo).toHaveBeenCalledTimes(1)
-    utils.pushTempRepo.mockReset()
+    expect(pushTempRepo).toHaveBeenCalledTimes(1)
+    pushTempRepo.mockReset()
 
     expect(
       await fs.readFile(
@@ -462,8 +460,8 @@ describe('Main repo is synced properly with folder repo', () => {
     )
     const pushCmd = `push --branch ${branchName} --message ${commitMsg} --author-name ${authorName} --author-email ${authorEmail}`
     await parseArgsAndExecute(folderRepoPath, pushCmd.split(' '))
-    expect(utils.pushTempRepo).toHaveBeenCalledTimes(1)
-    utils.pushTempRepo.mockReset()
+    expect(pushTempRepo).toHaveBeenCalledTimes(1)
+    pushTempRepo.mockReset()
     const commitAuthor = (await mainRepo.getHeadCommit()).author().toString()
     expect(commitAuthor).toEqual(`${authorName} <${authorEmail}>`)
   })
@@ -506,8 +504,8 @@ describe('Main repo is synced properly with folder repo', () => {
     )
     const pushCmd = `push --branch ${branchName} --message ${commitMsg} --author-name ${authorName} --author-email ${authorEmail}`
     await parseArgsAndExecute(folderRepoPath, pushCmd.split(' '))
-    expect(utils.pushTempRepo).toHaveBeenCalledTimes(1)
-    utils.pushTempRepo.mockReset()
+    expect(pushTempRepo).toHaveBeenCalledTimes(1)
+    pushTempRepo.mockReset()
     expect(await getCurBranch(mainRepo)).toEqual(branchName)
     expect((await mainRepo.getHeadCommit()).message()).toEqual(commitMsg)
   })

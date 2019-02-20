@@ -21,7 +21,7 @@ beforeEach(async done => {
     await fs.remove(mainRepoPath)
   }
   jest.setTimeout(10000)
-  mainRepoPath = getTempRepoPath('ignore')
+  mainRepoPath = getTempRepoPath(repoToClone)
   const initCmd = `init ${folderRepoRelativePath} --repo ${repoToClone} --folder ${
     folderPaths[0]
   } --folder ${folderPaths[1]} --branch ${branchName}`
@@ -37,7 +37,7 @@ afterEach(async done => {
 })
 
 describe('Modifies ignore array in config file', () => {
-  it('correctly detects same file in for both operations', async () => {
+  test('correctly detects same file in for both operations', async () => {
     expect.assertions(2)
     const initialConfig = await fs.readJson(
       path.resolve(folderRepoPath, CONFIG_FILENAME)
@@ -56,7 +56,7 @@ describe('Modifies ignore array in config file', () => {
     }
   })
 
-  it('correctly performes the add operation', async () => {
+  test('correctly performes the add operation', async () => {
     const intialIgnore = (await fs.readJson(
       path.resolve(folderRepoPath, CONFIG_FILENAME)
     )).ignore
@@ -71,7 +71,7 @@ describe('Modifies ignore array in config file', () => {
     expect(actualCommitMsg).toEqual(`updated ${CONFIG_FILENAME}`)
   })
 
-  it('correctly performes the remove operation', async () => {
+  test('correctly performes the remove operation', async () => {
     const fileToUse = 'test-file-3.txt'
     const ignoreAddCmd = `ignore --add ${fileToUse}`
     await parseArgsAndExecute(folderRepoPath, ignoreAddCmd.split(' '))
