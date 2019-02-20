@@ -18,7 +18,7 @@ let mainRepo
 let folderRepo
 
 beforeAll(() => {
-  mainRepoPath = getTempRepoPath(repoToClone)
+  mainRepoPath = getTempRepoPath('init')
 })
 
 beforeEach(async done => {

@@ -21,7 +21,7 @@ beforeEach(async done => {
     await fs.remove(mainRepoPath)
   }
   jest.setTimeout(10000)
-  mainRepoPath = getTempRepoPath(repoToClone)
+  mainRepoPath = getTempRepoPath('ignore')
   const initCmd = `init ${folderRepoRelativePath} --repo ${repoToClone} --folder ${
     folderPaths[0]
   } --folder ${folderPaths[1]} --branch ${branchName}`
