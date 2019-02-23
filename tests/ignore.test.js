@@ -1,38 +1,22 @@
-const Git = require('nodegit')
 const fs = require('fs-extra')
 const path = require('path')
 const parseArgsAndExecute = require('../lib')
-const _ = require('lodash')
 const { CONFIG_FILENAME } = require('../lib/constants')
-const { getTempRepoPath } = require('../lib/utils')
 
 const folderRepoRelativePath = './tmp/ignore'
 const folderRepoPath = path.resolve(__dirname, folderRepoRelativePath)
-
-const repoToClone = 'https://github.com/murcul/git-slice.git'
-const folderPaths = ['lib', 'bin'] // to be modified with the repo
-const branchName = 'master'
+const before = require('./helpers/before')
 
 let folderRepo
-let mainRepoPath
 
 beforeEach(async done => {
-  if (mainRepoPath) {
-    await fs.remove(mainRepoPath)
-  }
   jest.setTimeout(10000)
-  mainRepoPath = getTempRepoPath(repoToClone)
-  const initCmd = `init ${folderRepoRelativePath} --repo ${repoToClone} --folder ${
-    folderPaths[0]
-  } --folder ${folderPaths[1]} --branch ${branchName}`
-
-  await parseArgsAndExecute(__dirname, initCmd.split(' '))
-  folderRepo = await Git.Repository.open(folderRepoPath)
+  const { folder } = await before(folderRepoRelativePath, folderRepoPath)
+  folderRepo = folder
   done()
 })
 afterEach(async done => {
   await fs.remove(folderRepoPath)
-  await fs.remove(mainRepoPath)
   done()
 })
 
@@ -62,6 +46,7 @@ describe('Modifies ignore array in config file', () => {
     )).ignore
     const fileToAdd = 'test-file-3.txt'
     const ignoreCmd = `ignore --add ${fileToAdd}`
+
     await parseArgsAndExecute(folderRepoPath, ignoreCmd.split(' '))
     const updatedIgnore = (await fs.readJson(
       path.resolve(folderRepoPath, CONFIG_FILENAME)

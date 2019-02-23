@@ -1,12 +1,12 @@
-const parseArgsAndExecute = require('../lib')
 const { CONFIG_FILENAME } = require('../lib/constants')
-const { addCommmitMsgPrefix, getTempRepoPath } = require('../lib/utils')
+const { addCommmitMsgPrefix } = require('../lib/utils')
 const Git = require('nodegit')
 const path = require('path')
 const fs = require('fs-extra')
 
 const folderRepoRelativePath = './tmp/init'
 const folderRepoPath = path.resolve(__dirname, folderRepoRelativePath)
+const before = require('./helpers/before')
 
 const repoToClone = 'https://github.com/murcul/git-slice.git'
 const folderPaths = ['lib', 'bin'] // to be modified with the repo
@@ -16,29 +16,16 @@ const branchName = 'master'
 let mainRepoPath
 let mainRepo
 let folderRepo
-
-beforeAll(() => {
-  mainRepoPath = getTempRepoPath(repoToClone)
-})
-
 beforeEach(async done => {
   jest.setTimeout(10000)
-  const initCmd = `init ${folderRepoRelativePath} --repo ${repoToClone} --folder ${
-    folderPaths[0]
-  } --folder ${folderPaths[1]} --branch ${branchName}`
-  await parseArgsAndExecute(__dirname, initCmd.split(' '))
+  const { main, folder } = await before(folderRepoRelativePath, folderRepoPath)
+  mainRepoPath = main
+  folderRepo = folder
   mainRepo = await Git.Repository.open(mainRepoPath)
-  folderRepo = await Git.Repository.open(folderRepoPath)
   done()
 })
-
 afterEach(async done => {
   await fs.remove(folderRepoPath)
-  done()
-})
-
-afterAll(async done => {
-  await fs.remove(mainRepoPath)
   done()
 })
 

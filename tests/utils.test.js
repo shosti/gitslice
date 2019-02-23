@@ -1,7 +1,6 @@
 const Git = require('nodegit')
 const fs = require('fs-extra')
 const path = require('path')
-const parseArgsAndExecute = require('../lib')
 const {
   getAllFiles,
   getCurBranch,
@@ -13,54 +12,27 @@ const {
 } = require('../lib/utils')
 
 // Path to the new temporary git repository
-const mainRepoRelativePath = getTempRepoPath('utils')
 const folderRepoRelativePath = './tmp/utils'
-const mainRepoPath = path.resolve(__dirname, mainRepoRelativePath)
 const folderRepoPath = path.resolve(__dirname, folderRepoRelativePath)
+const before = require('./helpers/before')
 
 const folderPaths = ['folder1', 'folder2'] // to be modified with the repo
 let folderRepo
 let mainRepo
-const branchName = 'master'
+let mainRepoPath
 const COMMIT_MSG_PREFIX = 'git-slice:'
-const filePath = 'folders/folder1/foo.txt'
-const filePath2 = 'folders/folder2/foo.txt'
-const fileContent = 'Hello World'
 
-beforeAll(async () => {
-  mainRepo = await Git.Repository.init(mainRepoPath, 0)
-  await fs.outputFile(path.resolve(mainRepoPath, filePath), fileContent)
-  await fs.outputFile(path.resolve(mainRepoPath, filePath2), fileContent)
-  let index = await mainRepo.refreshIndex()
-  await index.addByPath(filePath)
-  await index.write()
-  const oid = await index.writeTree()
-  const signature = mainRepo.defaultSignature()
-  await mainRepo.setHead(`refs/heads/${branchName}`)
-  await mainRepo.createCommit(
-    'HEAD',
-    signature,
-    signature,
-    `initial commit`,
-    oid,
-    []
-  )
+beforeEach(async done => {
+  jest.setTimeout(10000)
+  const { main, folder } = await before(folderRepoRelativePath, folderRepoPath)
+  mainRepoPath = main
+  folderRepo = folder
+  mainRepo = await Git.Repository.open(mainRepoPath)
+  done()
 })
-
-beforeEach(async () => {
-  const initCmd = `init ${folderRepoRelativePath} --repo ${mainRepoRelativePath} --folder ${
-    folderPaths[0]
-  } --branch ${branchName}`
-  await parseArgsAndExecute(__dirname, initCmd.split(' '))
-  folderRepo = await Git.Repository.open(folderRepoPath)
-})
-
-afterEach(async () => {
+afterEach(async done => {
   await fs.remove(folderRepoPath)
-})
-
-afterAll(async () => {
-  await fs.remove(mainRepoPath)
+  done()
 })
 
 describe('ensureArray', () => {
@@ -124,23 +96,23 @@ describe('getAllFiles', () => {
 
   it('should return the current files in the directory', async () => {
     allFiles = await getAllFiles(folderRepoPath)
-    expect(allFiles.length).toBe(13)
+    expect(allFiles.length).toBe(37)
   })
 
   it('should return all files in a directory', async () => {
     await fs.outputFile(test1Path, test1Text)
     await fs.outputFile(test2Path, test2Text)
     allFiles = await getAllFiles(folderRepoPath)
-    expect(allFiles.length).toBe(15)
+    expect(allFiles.length).toBe(39)
     expect(await fs.readFile(test1Path, 'utf8')).toBe('Test 1!')
     expect(await fs.readFile(test2Path, 'utf8')).toBe('Test 2!')
   })
 
   it('should return an empty array', async () => {
+    const tmpPath = path.join(folderRepoPath, '..')
     await fs.remove(folderRepoPath)
-    const currentDir = path.resolve(__dirname, 'tmp/test')
-    fs.ensureDirSync(currentDir)
-    allFiles = await getAllFiles(currentDir)
+    fs.ensureDirSync(tmpPath)
+    allFiles = await getAllFiles(tmpPath)
     expect(allFiles).toEqual([])
   })
 })

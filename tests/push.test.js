@@ -8,15 +8,13 @@ jest.mock('../lib/utils')
 const {
   removeCommitMsgPrefix,
   getCurBranch,
-  getTempRepoPath,
   pushTempRepo
 } = require('../lib/utils')
 const folderRepoRelativePath = './tmp/push'
 const folderRepoPath = path.resolve(__dirname, folderRepoRelativePath)
 
-const repoToClone = 'https://github.com/murcul/git-slice.git'
 const folderPaths = ['bin', 'tests'] // to be modified with the repo
-const branchName = 'master'
+const before = require('./helpers/before')
 
 let mainRepoPath
 let mainRepo
@@ -25,170 +23,21 @@ let folderRepo
 const authorName = 'Murcul'
 const authorEmail = 'murcul@murcul.com'
 
-beforeAll(() => {
-  mainRepoPath = getTempRepoPath(repoToClone)
-})
-
 beforeEach(async done => {
-  jest.setTimeout(100000)
-  const initCmd = `init ${folderRepoRelativePath} --repo ${repoToClone} --folder ${
-    folderPaths[0]
-  } --folder ${folderPaths[1]} --branch ${branchName}`
-
-  await parseArgsAndExecute(__dirname, initCmd.split(' '))
+  jest.setTimeout(10000)
+  const { main, folder } = await before(folderRepoRelativePath, folderRepoPath)
+  mainRepoPath = main
+  folderRepo = folder
   mainRepo = await Git.Repository.open(mainRepoPath)
-  folderRepo = await Git.Repository.open(folderRepoPath)
   done()
 })
-
 afterEach(async done => {
   await fs.remove(folderRepoPath)
   done()
 })
 
-afterAll(async done => {
-  await fs.remove(mainRepoPath)
-  done()
-})
-
 describe('Main repo is synced properly with folder repo', () => {
   jest.setTimeout(100000)
-  test('added files in folder repo are properly synced to the main folder', async () => {
-    const branchName = 'test-branch-1'
-    const commitMsg = 'added some files'
-
-    await folderRepo.createBranch(
-      branchName,
-      (await folderRepo.getMasterCommit()).sha(),
-      0 // gives error if the branch already exists
-    )
-    await folderRepo.checkoutBranch(branchName)
-
-    const testFile1Path = path.resolve(
-      folderRepoPath,
-      folderPaths[0],
-      'testFile1.txt'
-    )
-    const testFile2Path = path.resolve(
-      folderRepoPath,
-      folderPaths[1],
-      'testFile2.txt'
-    )
-    const testFile3Path = path.resolve(
-      folderRepoPath,
-      folderPaths[1],
-      'testFile3.txt'
-    )
-    const testFile1Text = 'Hello World!'
-    const testFile2Text = 'How are you?'
-    const testFile3Text = 'I am good'
-    await fs.outputFile(testFile1Path, testFile1Text)
-    await fs.outputFile(testFile2Path, testFile2Text)
-    await fs.outputFile(testFile3Path, testFile3Text)
-    const signature = mainRepo.defaultSignature()
-
-    let index = await folderRepo.refreshIndex()
-    await index.addByPath(path.relative(folderRepoPath, testFile1Path))
-    await index.addByPath(path.relative(folderRepoPath, testFile2Path))
-    await index.addByPath(path.relative(folderRepoPath, testFile3Path))
-    await index.write()
-    const oid = await index.writeTree()
-    const parent = await folderRepo.getCommit(
-      await Git.Reference.nameToId(folderRepo, 'HEAD')
-    )
-    const addedFiles = await folderRepo.createCommit(
-      'HEAD',
-      signature,
-      signature,
-      commitMsg,
-      oid,
-      [parent]
-    )
-    const pushCmd = `push --branch ${branchName} --message ${commitMsg} --author-name ${authorName} --author-email ${authorEmail}`
-    await parseArgsAndExecute(folderRepoPath, pushCmd.split(' '))
-    expect(pushTempRepo).toHaveBeenCalledTimes(1)
-    pushTempRepo.mockReset()
-
-    expect(
-      await fs.readFile(
-        testFile1Path.replace(folderRepoPath, mainRepoPath),
-        'utf8'
-      )
-    ).toBe(testFile1Text)
-    expect(
-      await fs.readFile(
-        testFile2Path.replace(folderRepoPath, mainRepoPath),
-        'utf8'
-      )
-    ).toBe(testFile2Text)
-    expect(
-      await fs.readFile(
-        testFile3Path.replace(folderRepoPath, mainRepoPath),
-        'utf8'
-      )
-    ).toBe(testFile3Text)
-  })
-
-  test('deleted files in the folder repo are properly synced to the main repo', async () => {
-    const branchName = 'test-branch-2'
-    const commitMsg = 'deleted some files'
-
-    const newBranch = await folderRepo.createBranch(
-      branchName,
-      (await folderRepo.getMasterCommit()).sha(),
-      0 // gives error if the branch already exists
-    )
-    await folderRepo.checkoutBranch(branchName)
-
-    const testFile1 = (await fs.readdir(
-      path.resolve(folderRepoPath, folderPaths[0])
-    ))[0]
-    const testFile1Path = path.resolve(
-      folderRepoPath,
-      folderPaths[0],
-      testFile1
-    )
-    const testFile2 = (await fs.readdir(
-      path.resolve(folderRepoPath, folderPaths[1])
-    ))[0]
-    const testFile2Path = path.resolve(
-      folderRepoPath,
-      folderPaths[1],
-      testFile2
-    )
-    await fs.remove(testFile1Path)
-    await fs.remove(testFile2Path)
-
-    const signature = mainRepo.defaultSignature()
-    let index = await folderRepo.refreshIndex()
-    await index.remove(path.relative(folderRepoPath, testFile1Path), 0)
-    await index.remove(path.relative(folderRepoPath, testFile2Path), 0)
-    await index.write()
-    const oid = await index.writeTree()
-    const parent = await folderRepo.getCommit(
-      await Git.Reference.nameToId(folderRepo, 'HEAD')
-    )
-    const addedFiles = await folderRepo.createCommit(
-      'HEAD',
-      signature,
-      signature,
-      commitMsg,
-      oid,
-      [parent]
-    )
-    const pushCmd = `push --branch ${branchName} --message ${commitMsg} --author-name ${authorName} --author-email ${authorEmail}`
-    await parseArgsAndExecute(folderRepoPath, pushCmd.split(' '))
-    expect(pushTempRepo).toHaveBeenCalledTimes(1)
-    pushTempRepo.mockReset()
-
-    expect(
-      await fs.exists(testFile1Path.replace(folderRepoPath, mainRepoPath))
-    ).toBe(false)
-    expect(
-      await fs.exists(testFile2Path.replace(folderRepoPath, mainRepoPath))
-    ).toBe(false)
-  })
-
   test('properly updates if the branch already exists in the main repo', async () => {
     const branchName = 'test-branch-3'
     const commitMsg = 'added some files'
@@ -319,107 +168,6 @@ describe('Main repo is synced properly with folder repo', () => {
       expect(pushTempRepo).not.toHaveBeenCalled()
       pushTempRepo.mockReset()
     }
-  })
-
-  test('properly pushes even if there are custom commits in the master', async () => {
-    const branchName = 'test-branch-5'
-    const commitMsg = 'added some files'
-
-    const newBranch = await folderRepo.createBranch(
-      branchName,
-      (await folderRepo.getMasterCommit()).sha(),
-      0 // gives error if the branch already exists
-    )
-    await folderRepo.checkoutBranch(branchName)
-
-    const testFile1Path = path.resolve(
-      folderRepoPath,
-      folderPaths[0],
-      'testFile1.txt'
-    )
-    const testFile2Path = path.resolve(
-      folderRepoPath,
-      folderPaths[1],
-      'testFile2.txt'
-    )
-    const testFile3Path = path.resolve(
-      folderRepoPath,
-      folderPaths[1],
-      'testFile3.txt'
-    )
-    const testFile1Text = 'Hello Murcul!'
-    const testFile2Text = 'How are you doing?'
-    const testFile3Text = 'I am not good, feeling bored. Lets code?'
-    await fs.outputFile(testFile1Path, testFile1Text)
-    await fs.outputFile(testFile2Path, testFile2Text)
-    await fs.outputFile(testFile3Path, testFile3Text)
-    const signature = mainRepo.defaultSignature()
-
-    let index = await folderRepo.refreshIndex()
-    await index.addByPath(path.relative(folderRepoPath, testFile1Path))
-    await index.addByPath(path.relative(folderRepoPath, testFile2Path))
-    await index.addByPath(path.relative(folderRepoPath, testFile3Path))
-    await index.write()
-    const oid = await index.writeTree()
-    const parent = await folderRepo.getCommit(
-      await Git.Reference.nameToId(folderRepo, 'HEAD')
-    )
-    await folderRepo.createCommit(
-      'HEAD',
-      signature,
-      signature,
-      commitMsg,
-      oid,
-      [parent]
-    )
-
-    await folderRepo.checkoutBranch('master')
-    const testFile4Path = path.resolve(
-      folderRepoPath,
-      folderPaths[1],
-      'testFile4.txt'
-    )
-    const testFile4Text = 'Something totally random'
-    await fs.outputFile(testFile4Path, testFile4Text)
-    let indexMaster = await folderRepo.refreshIndex()
-    await indexMaster.addByPath(path.relative(folderRepoPath, testFile4Path))
-    await indexMaster.write()
-    const oidMaster = await indexMaster.writeTree()
-    const parentMaster = await folderRepo.getCommit(
-      await Git.Reference.nameToId(folderRepo, 'HEAD')
-    )
-    await folderRepo.createCommit(
-      'HEAD',
-      signature,
-      signature,
-      'custom commit',
-      oidMaster,
-      [parentMaster]
-    )
-    await folderRepo.checkoutBranch(branchName)
-    const pushCmd = `push --branch ${branchName} --message ${commitMsg} --author-name ${authorName} --author-email ${authorEmail}`
-    await parseArgsAndExecute(folderRepoPath, pushCmd.split(' '))
-    expect(pushTempRepo).toHaveBeenCalledTimes(1)
-    pushTempRepo.mockReset()
-
-    expect(
-      await fs.readFile(
-        testFile1Path.replace(folderRepoPath, mainRepoPath),
-        'utf8'
-      )
-    ).toBe(testFile1Text)
-    expect(
-      await fs.readFile(
-        testFile2Path.replace(folderRepoPath, mainRepoPath),
-        'utf8'
-      )
-    ).toBe(testFile2Text)
-    expect(
-      await fs.readFile(
-        testFile3Path.replace(folderRepoPath, mainRepoPath),
-        'utf8'
-      )
-    ).toBe(testFile3Text)
   })
 
   test('commits with the correct signature in the main repo', async () => {
