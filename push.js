@@ -1,32 +1,36 @@
-const parseArgsAndExecute = require('../lib')
-
 const Git = require('nodegit')
 const path = require('path')
 const fs = require('fs-extra')
 const expect = require('expect')
 const sinon = require('sinon')
-const { removeCommitMsgPrefix, getCurBranch } = require('../lib/utils')
-const utils = require('../lib/utils')
-const folderRepoRelativePath = './tmp/push'
-const folderRepoPath = path.resolve(__dirname, folderRepoRelativePath)
 
-const folderPaths = ['bin', 'tests'] // to be modified with the repo
+const {
+  removeCommitMsgPrefix,
+  getCurBranch,
+  getTempRepoPath
+} = require('../lib/utils')
+const utils = require('../lib/utils')
+const parseArgsAndExecute = require('../lib')
 const before = require('./helpers/before')
 
+const folderRepoRelativePath = './tmp/push'
+const folderRepoPath = path.resolve(__dirname, folderRepoRelativePath)
+const folderPaths = ['bin', 'tests'] // to be modified with the repo
+
 let pushTempRepo
-let mainRepoPath
 let mainRepo
 let folderRepo
 
+const repoToClone = 'https://github.com/murcul/git-slice.git'
+const mainRepoPath = getTempRepoPath(repoToClone)
 const authorName = 'Murcul'
 const authorEmail = 'murcul@murcul.com'
 
 beforeEach(async function() {
   this.timeout(10000)
   const { main, folder } = await before(folderRepoPath)
-  mainRepoPath = main
+  mainRepo = main
   folderRepo = folder
-  mainRepo = await Git.Repository.open(mainRepoPath)
   pushTempRepo = sinon.stub(utils, 'pushTempRepo')
 })
 afterEach(async () => {
