@@ -6,7 +6,7 @@ const repoToClone = 'https://github.com/murcul/git-slice.git'
 
 after(async function() {
   const mainRepoPath = getTempRepoPath(repoToClone)
-  const setupFolder = path.join(__dirname, '..', 'setup')
+  const setupFolder = path.join(__dirname, '..', 'tmp/setup')
 
   await fs.remove(mainRepoPath)
   await fs.remove(setupFolder)

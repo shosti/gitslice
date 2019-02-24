@@ -1,30 +1,28 @@
 const Git = require('nodegit')
 const fs = require('fs-extra')
 const {
-  getTempRepo,
+  getTempRepoPath,
   copyFiles,
   addCommmitMsgPrefix
 } = require('../../lib/utils')
 const { CONFIG_FILENAME } = require('../../lib/constants')
 
-const folderPaths = ['bin', 'tests'] // to be modified with the repo
 const repoToClone = 'https://github.com/murcul/git-slice.git'
+const folderPaths = ['lib', 'bin'] // to be modified with the repo
 const branchName = 'master'
 
-module.exports = async function(folderRepoPath) {
+module.exports = async function before(folderRepoPath) {
   const config = {
     repoUrl: repoToClone,
     folders: folderPaths,
     branch: branchName,
     ignore: [CONFIG_FILENAME]
   }
-  const mainRepoPath = await getTempRepo(repoToClone, branchName)
-  await fs.ensureDir(folderRepoPath)
+  const mainRepoPath = getTempRepoPath(repoToClone)
   const mainRepo = await Git.Repository.open(mainRepoPath)
-  await mainRepo.checkoutBranch(branchName)
   const folderRepo = await Git.Repository.init(folderRepoPath, 0)
-  await copyFiles(mainRepoPath, folderRepoPath, folderPaths, config.ignore)
 
+  await copyFiles(mainRepoPath, folderRepoPath, folderPaths, [CONFIG_FILENAME])
   await fs.writeJson(`${folderRepoPath}/${CONFIG_FILENAME}`, config, {
     spaces: 2
   })
@@ -47,7 +45,7 @@ module.exports = async function(folderRepoPath) {
   )
 
   return {
-    main: mainRepoPath,
+    main: mainRepo,
     folder: folderRepo
   }
 }
