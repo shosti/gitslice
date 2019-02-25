@@ -4,31 +4,14 @@ jobs:
     docker:
       - image: circleci/node:8.11.4
     working_directory: ~/repo
-
     steps:
       - checkout
-
-      - add_ssh_keys:
-            fingerprints:
-              - "94:b0:4c:5e:58:63:bd:d1:8e:1a:de:cb:1e:52:7b:16"
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "package.json" }}
-            - v1-dependencies-
-
       - run:
           name: Install Dependencies
-          command: npm install && npm install -D codecov jest-junit
-
-      - save_cache:
-          paths:
-            - node_modules
-          key: v1-dependencies-{{ checksum "package.json" }}
-
+          command: npm install
       - run:
           name: Prettier Check
           command: npm run prettier
-
       - run:
           name: Test
           command: npm run test
