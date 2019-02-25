@@ -7,7 +7,8 @@
     "test": "jest",
     "test:watch": "jest --watchAll",
     "test:coverage": "jest --coverage",
-    "prettier": "prettier --single-quote --write --no-semi '{bin,lib,tests,__{tests,mocks}__}/**/*.js'",
+    "prettier":
+      "prettier --single-quote --write --no-semi '{bin,lib,tests,__{tests,mocks}__}/**/*.js'",
     "precommit": "lint-staged"
   },
   "author": "",
@@ -16,10 +17,7 @@
     "git-slice": "./bin/cli.js"
   },
   "lint-staged": {
-    "*.{js,json,css,md}": [
-      "yarn run prettier",
-      "git add"
-    ]
+    "*.{js,json,css,md}": ["yarn run prettier", "git add"]
   },
   "dependencies": {
     "cli-progress": "^1.8.0",
@@ -28,6 +26,7 @@
     "minimist": "^1.2.0",
     "nodegit": "^0.20.1",
     "readline-sync": "^1.4.9",
+    "sinon": "^7.2.4",
     "string-hash": "^1.1.3",
     "yarn": "^1.13.0"
   },
