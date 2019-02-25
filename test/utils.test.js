@@ -2,6 +2,12 @@ const Git = require('nodegit')
 const fs = require('fs-extra')
 const path = require('path')
 const expect = require('expect')
+const parseArgsAndExecute = require('../lib')
+const sinon = require('sinon')
+
+// Path to the new temporary git repository
+const folderRepoRelativePath = './tmp/main/folders'
+const folderRepoPath = path.resolve(__dirname, folderRepoRelativePath)
 const {
   getAllFiles,
   getCurBranch,
@@ -119,5 +125,15 @@ describe('getLastGitSliceCommitHash', () => {
       await Git.Reference.nameToId(mainRepo, 'HEAD')
     )).sha()
     expect(await getLastGitSliceCommitHash(folderRepo)).toBe(expectedCommitHash)
+  })
+})
+
+describe('error tests', () => {
+  test('on error process should return error code 1', async () => {
+    sinon.stub(process, 'exit')
+    await parseArgsAndExecute(folderRepoPath + 'FOO', ['pull'])
+
+    expect(process.exit.calledWith(1)).toEqual(true)
+    process.exit.restore()
   })
 })
