@@ -1,9 +1,11 @@
 const expect = require('expect')
 const fs = require('fs-extra')
 const path = require('path')
+const sinon = require('sinon')
 const parseArgsAndExecute = require('../lib')
 const { CONFIG_FILENAME } = require('../lib/constants')
 const before = require('./helpers/before')
+sinon.stub(process, 'exit')
 
 const folderRepoRelativePath = './tmp/ignore'
 const folderRepoPath = path.resolve(__dirname, folderRepoRelativePath)
@@ -35,6 +37,8 @@ describe('Modifies ignore array in config file', () => {
       expect(e).toBe(
         'Error: Both add and remove operation is being performed on the same file'
       )
+      expect(process.exit.calledWith(1)).toEqual(true)
+
       expect(initialConfig).toEqual(updatedConfig) // no changes are made to the config file
     }
   })
