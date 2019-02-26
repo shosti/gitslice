@@ -4,6 +4,11 @@ jobs:
     docker:
       - image: circleci/node:8.11.4
     working_directory: ~/repo
+    dependencies:
+      pre:
+        - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+        - sudo apt-get update
+        - sudo apt-get install -y libstdc++-4.9-dev
     steps:
       - checkout
       - restore_cache:
@@ -31,7 +36,7 @@ jobs:
             eval `ssh-agent -s`
             ssh-add ~/repo/.ssh/id_rsa
             git config --global user.name "John Doe"
-            git config --global user.email johndoe@example.com
+            git config --global user.email john.doe@email.com
       - run:
           name: Test
           command: npm run test
@@ -39,5 +44,3 @@ jobs:
           name: Build Success
           when: on_success
           command: npm run coverage
-
-
