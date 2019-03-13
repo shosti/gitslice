@@ -7,6 +7,7 @@ action "test-coverage" {
   uses = "action/npm@master"
   args = "coverage"
   needs = ["test"]
+  secrets = ["CODECOV_TOKEN"]
 }
 
 action "build" {
