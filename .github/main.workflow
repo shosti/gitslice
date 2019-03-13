@@ -4,8 +4,8 @@ workflow "build-and-test" {
 }
 
 action "test-coverage" {
-  uses = "action/npm@master"
-  args = "coverage"
+  uses = "actions/npm@master"
+  args = "run coverage"
   needs = ["test"]
   secrets = ["CODECOV_TOKEN"]
 }
