@@ -1,54 +1,33 @@
-const parseArgsAndExecute = require('../lib')
-const { CONFIG_FILENAME } = require('../lib/constants')
-const Git = require('nodegit')
 const path = require('path')
 const fs = require('fs-extra')
-const {
-  getCurBranch,
-  getAllFiles,
-  addCommmitMsgPrefix,
-  getTempRepoPath
-} = require('../lib/utils')
+const expect = require('expect')
+
+const parseArgsAndExecute = require('../lib')
+const { CONFIG_FILENAME } = require('../lib/constants')
+const { getCurBranch, addCommmitMsgPrefix } = require('../lib/utils')
+const before = require('./helpers/before')
 
 const folderRepoRelativePath = './tmp/pull'
 const folderRepoPath = path.resolve(__dirname, folderRepoRelativePath)
 
-const repoToClone = 'https://github.com/murcul/git-slice.git'
 const folderPaths = ['lib', 'bin'] // to be modified with the repo
 const folderPathRegExp = new RegExp(folderPaths.join('|^'))
-const branchName = 'master'
 
-let mainRepoPath
 let mainRepo
 let folderRepo
 
-beforeAll(() => {
-  mainRepoPath = getTempRepoPath(repoToClone)
+beforeEach(async function() {
+  this.timeout(10000)
+  const { main, folder } = await before(folderRepoPath)
+  mainRepo = main
+  folderRepo = folder
 })
-
-beforeEach(async done => {
-  jest.setTimeout(10000)
-  const initCmd = `init ${folderRepoRelativePath} --repo ${repoToClone} --folder ${
-    folderPaths[0]
-  } --folder ${folderPaths[1]} --branch ${branchName}`
-  await parseArgsAndExecute(__dirname, initCmd.split(' '))
-  mainRepo = await Git.Repository.open(mainRepoPath)
-  folderRepo = await Git.Repository.open(folderRepoPath)
-  done()
-})
-
-afterEach(async done => {
+afterEach(async () => {
   await fs.remove(folderRepoPath)
-  done()
-})
-
-afterAll(async done => {
-  await fs.remove(mainRepoPath)
-  done()
 })
 
 describe('Folder repo is synced properly with main repo', () => {
-  test('all unignored files are copied - check by counting', async () => {
+  it('all unignored files are copied - check by counting', async () => {
     const filesToCopy = (await mainRepo.index())
       .entries()
       .filter(x => folderPathRegExp.test(x.path))
@@ -58,7 +37,7 @@ describe('Folder repo is synced properly with main repo', () => {
     // excluding the config file
     expect(copiedFiles.length - 1).toBe(filesToCopy.length)
   })
-  test('all unignored files are copied - check by name and file size', async () => {
+  it('all unignored files are copied - check by name and file size', async () => {
     const filesToCopy = (await mainRepo.index())
       .entries()
       .filter(x => folderPathRegExp.test(x.path))
@@ -70,7 +49,7 @@ describe('Folder repo is synced properly with main repo', () => {
       copiedFiles.map(({ fileSize, path }) => ({ fileSize, path }))
     ).toEqual(filesToCopy.map(({ fileSize, path }) => ({ fileSize, path })))
   })
-  test('proper commit is made in the forked folder', async () => {
+  it('proper commit is made in the forked folder', async () => {
     const expected = addCommmitMsgPrefix(
       (await mainRepo.getMasterCommit()).sha()
     )
@@ -79,7 +58,7 @@ describe('Folder repo is synced properly with main repo', () => {
     await fs.remove(folderRepoPath)
   })
 
-  test('checkouts to the master branch before pulling', async () => {
+  it('checkouts to the master branch before pulling', async () => {
     let branchName = 'pull-test-branch'
     await folderRepo.createBranch(
       branchName,
@@ -92,7 +71,7 @@ describe('Folder repo is synced properly with main repo', () => {
     expect(await getCurBranch(folderRepo)).toBe('master')
   })
 
-  test('does not pull if there are uncommitted changes', async () => {
+  it('does not pull if there are uncommitted changes', async () => {
     expect.assertions(1)
     const testFilePath = path.resolve(
       folderRepoPath,

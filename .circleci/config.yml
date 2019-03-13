@@ -2,30 +2,45 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/node:8.5.0
+      - image: circleci/node:8.11.4
     working_directory: ~/repo
-
+    dependencies:
+      pre:
+        - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+        - sudo apt-get update
+        - sudo apt-get install -y libstdc++-4.9-dev
     steps:
       - checkout
-
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "package.json" }}
             - v1-dependencies-
-
       - run:
           name: Install Dependencies
-          command: npm install && npm install -D codecov jest-junit
-
+          command: npm install
       - save_cache:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
-
       - run:
           name: Prettier Check
           command: npm run prettier
-
+      - run:
+          name: Setup SSH
+          command:  |
+            mkdir ~/repo/.ssh
+            echo -e "Host *\n\tStrictHostKeyChecking no\n" >> ~/repo/.ssh/config
+            echo -e "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC9O9eYqw1UB+tknecIRQwPnmGOzLvz9NQ7u8wgGB6xVjba/eQFdX6BnFjsYc5tsYBNNtCAunkNgsMbOEgFrHeIZcmGn+BI4X2i7GXmtfI2IcyYUSP07nFs9m+7kRUWcmTY86uUQDRThmO85lTk/JPzNNFTylkioNvn9VYq4utWGxxmMYysiXv9h2lCzteKP4eQgFseFmCI5uDbIAIujTwvGTNyGm/7/XmYPwjXm+ChUi9NCER7YVtw5UiZg0kCwfgSLzh7wcRpu5opPRvwzCB5mwyNRFkot2icJD94q1YwG5lfq0qEytH+1arYKV5aLzO3UgZaRF3HsX4wBNzPlRRb2tw4C/Xm3sq79NtFaaNUqDNIrHQN/clwVvWumP196Uz9dTLVC+y1BOUjQfdKzlT9AyNfoLkBJuYJNpOt8pOGmPwvZwXWNWTZxUt0sGNhTi31QNbLl8omBMxIBuPYtNWMXbtD1Lppr4IuERlM1CpKR2P6b4OzY07VocpcCAQdP2sm3nF3Gi/2gdvtnTzwUY8ySe78th2nQL3GwdiN7OijZzWMe1FdImw7Q0zH3U9rKJA0bySSQQoP/E36uP2M1IwtNOVQG43VSy4/AdM2EwhfWFGtKWV5aNdQzwk1KksoIPM4S47XRoGRaDTG+mT15xWAvfX5+e9QHYS5i95F6jFFfQ== john.doe@email.com" > ~/repo/.ssh/id_rsa.pub
+            echo -e "-----BEGIN OPENSSH PRIVATE KEY-----\n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\n-----END OPENSSH PRIVATE KEY-----" > ~/repo/.ssh/id_rsa
+            chmod 600 ~/repo/.ssh/id_rsa*
+            eval `ssh-agent -s`
+            ssh-add ~/repo/.ssh/id_rsa
+            git config --global user.name "John Doe"
+            git config --global user.email john.doe@email.com
       - run:
           name: Test
           command: npm run test
+      - run:
+          name: Build Success
+          when: on_success
+          command: npm run coverage
