@@ -1,6 +1,12 @@
 workflow "build-and-test" {
   on = "push"
-  resolves = "test"
+  resolves = "test-coverage"
+}
+
+action "test-coverage" {
+  uses = "action/npm@master"
+  args = "coverage"
+  needs = ["test"]
 }
 
 action "build" {
