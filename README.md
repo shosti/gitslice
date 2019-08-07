@@ -20,7 +20,7 @@ This utility can be used to take out folder(s) from a git repository, fork it in
 | --folder |   Path of the folder from the repository root    |   YES    |      YES       |
 
 ```sh
-$ git-slice init frontent-public --repo ./../main-repo --folder src/frontend/public --folder src/frontend/Components/Login --branch develop
+$ git-slice init frontent-public --repo repoUrl --folder src/frontend/public --folder src/frontend/Components/Login --branch develop
 ```
 
 This command creates a new folder in the current directory and initiates a new git repository in it. In this case it will copy all the content from `main-repo/src/frontend/public` and `main-repo/src/frontend/Components/Login`, and places it in `frontend-public/src/frontend/public` and `frontend-public/src/frontend/Components/Login` respectively. In addition, this command also creates a config file `frontend-public/git-slice.json` to store configuration details.
