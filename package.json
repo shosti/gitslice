@@ -24,6 +24,7 @@
     "cli-progress": "^1.8.0",
     "command-line-usage": "^4.0.1",
     "fs-extra": "^4.0.1",
+    "graphql": "^14.5.8",
     "graphql-tag": "^2.10.1",
     "isomorphic-unfetch": "^3.0.0",
     "minimist": "^1.2.0",
