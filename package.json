@@ -19,9 +19,15 @@
     "*.{js,json,css,md}": ["yarn run prettier", "git add"]
   },
   "dependencies": {
+    "apollo-boost": "^0.4.4",
+    "axios": "^0.19.0",
     "cli-progress": "^1.8.0",
     "command-line-usage": "^4.0.1",
+    "dotenv": "^8.1.0",
     "fs-extra": "^4.0.1",
+    "graphql": "^14.5.8",
+    "graphql-tag": "^2.10.1",
+    "isomorphic-unfetch": "^3.0.0",
     "minimist": "^1.2.0",
     "nodegit": "^0.26.2",
     "readline-sync": "^1.4.9",
