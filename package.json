@@ -5,7 +5,8 @@
   "main": "lib/index.js",
   "scripts": {
     "test": "nyc mocha",
-    "prettier": "prettier --single-quote --write --no-semi '{bin,lib,tests,__{tests,mocks}__}/**/*.js'",
+    "prettier":
+      "prettier --single-quote --write --no-semi '{bin,lib,tests,__{tests,mocks}__}/**/*.js'",
     "precommit": "lint-staged",
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov"
   },
@@ -15,10 +16,7 @@
     "git-slice": "./bin/cli.js"
   },
   "lint-staged": {
-    "*.{js,json,css,md}": [
-      "yarn run prettier",
-      "git add"
-    ]
+    "*.{js,json,css,md}": ["yarn run prettier", "git add"]
   },
   "dependencies": {
     "apollo-boost": "^0.4.4",
@@ -27,7 +25,6 @@
     "command-line-usage": "^4.0.1",
     "dotenv": "^8.1.0",
     "fs-extra": "^4.0.1",
-    "git-state": "^4.1.0",
     "graphql": "^14.5.8",
     "graphql-tag": "^2.10.1",
     "isomorphic-unfetch": "^3.0.0",
