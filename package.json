@@ -5,7 +5,8 @@
   "main": "lib/index.js",
   "scripts": {
     "test": "nyc mocha",
-    "prettier": "prettier --single-quote --write --no-semi '{bin,lib,tests,__{tests,mocks}__}/**/*.js'",
+    "prettier":
+      "prettier --single-quote --write --no-semi '{bin,lib,tests,__{tests,mocks}__}/**/*.js'",
     "precommit": "lint-staged",
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov"
   },
@@ -15,10 +16,7 @@
     "git-slice": "./bin/cli.js"
   },
   "lint-staged": {
-    "*.{js,json,css,md}": [
-      "yarn run prettier",
-      "git add"
-    ]
+    "*.{js,json,css,md}": ["yarn run prettier", "git add"]
   },
   "dependencies": {
     "apollo-boost": "^0.4.4",
