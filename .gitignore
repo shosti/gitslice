@@ -58,3 +58,5 @@ typings/
 
 # test repositories
 tests/tmp
+
+dist/
