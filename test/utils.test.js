@@ -10,7 +10,7 @@ const {
   addCommmitMsgPrefix,
   removeCommitMsgPrefix,
   ensureArray,
-  getLastGitSliceCommitHash
+  getLastGitSliceCommitHash,
 } = require('../lib/utils')
 
 // Path to the new temporary git repository

@@ -14,7 +14,7 @@ const COMMIT_MSG_PREFIX = 'git-slice:'
 
 const progressBar = new CliProgress.Bar(
   {
-    format: '{bar} {percentage}% | ETA: {eta_formatted} | {value}/{total}'
+    format: '{bar} {percentage}% | ETA: {eta_formatted} | {value}/{total}',
   },
   CliProgress.Presets.shades_classic
 )
@@ -54,11 +54,11 @@ async function cloneRepo(
       checkoutBranch: branch,
       fetchOpts: {
         callbacks: {
-          certificateCheck: () => 1
+          certificateCheck: () => 1,
         },
         credentials: promptForCredentials,
-        transferProgress
-      }
+        transferProgress,
+      },
     })
 
     progressBar.stop()
@@ -80,8 +80,8 @@ async function updateFromOrigin(
     await repo.fetch('origin', {
       callbacks: {
         credentials: promptForCredentials,
-        transferProgress
-      }
+        transferProgress,
+      },
     })
     progressBar.stop()
     await repo.mergeBranches(branch, `origin/${branch}`)
@@ -182,7 +182,8 @@ const getSinlgeSymlink = async (
   const symlinks = []
 
   for (const sourceFile of allFiles) {
-    const symLink = singleFile(sourceFile)
+    const symLink = await singleFile(sourceFile)
+
     if (symLink) symlinks.push(symLink)
   }
 
@@ -209,6 +210,7 @@ export const copyFiles = async (
       destination,
       ignoredFiles
     )
+
     symbolicLinks = [...symbolicLinks, ...symLink]
   }
 
@@ -218,3 +220,42 @@ export const copyFiles = async (
     nodeFs.symlinkSync(nodeFs.readlinkSync(sourceFile), desFile)
   }
 }
+
+export const deleteFiles = async (source: string, ignored: string[]) => {
+  const repo = await Git.Repository.open(source)
+
+  const ignoredFiles = ignored.map(f => path.resolve(source, f))
+  const files = await getAllFiles(source)
+
+  for (let file of files) {
+    const isGitIgnored = await Git.Ignore.pathIsIgnored(repo, file)
+
+    if (!isGitIgnored && !ignoredFiles.includes(file)) {
+      await fs.remove(file)
+    }
+  }
+}
+
+export const findFile = (startPath: string, filter: string): string[] => {
+  if (!fs.existsSync(startPath)) {
+    console.log('This is not a directory', startPath)
+
+    return []
+  }
+
+  return fs.readdirSync(startPath).reduce((acc, file) => {
+    const filepath = path.join(startPath, file)
+    const isDirectory = fs.lstatSync(filepath).isDirectory()
+    if (isDirectory) return [...acc, findFile(filepath, filter)]
+
+    return [...acc, filepath]
+  }, [])
+}
+
+export const getAccessEndpointFromRepoUrl = (repoUrl: string) => {
+  repoUrl = repoUrl.replace(/\/\/.*@/gm, '//')
+
+  return repoUrl.substr(0, repoUrl.lastIndexOf('/'))
+}
+
+export const getClientName = (repoName: string) => repoName.split('-')[1]

@@ -1,5 +1,7 @@
 // #!/usr/bin/env node
 
+import 'module-alias/register'
+
 import { config } from 'dotenv'
 
 config()

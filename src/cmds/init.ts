@@ -11,49 +11,53 @@ export default async (
   forkedRepo: string,
   branchName: string
 ) => {
-  const folderRepoPath = path.resolve(process.cwd(), forkedRepo)
+  try {
+    const folderRepoPath = path.resolve(process.cwd(), forkedRepo)
 
-  const config = {
-    repoUrl,
-    folders: folderPaths,
-    branch: branchName,
-    ignore: [CONFIG_FILENAME]
+    const config = {
+      repoUrl,
+      folders: folderPaths,
+      branch: branchName,
+      ignore: [CONFIG_FILENAME],
+    }
+
+    const mainRepoPath = await getTempRepo(repoUrl, branchName)
+
+    await fs.ensureDir(folderRepoPath)
+
+    const mainRepo = await Git.Repository.open(mainRepoPath)
+    await mainRepo.checkoutBranch(branchName)
+
+    const folderRepo = await Git.Repository.init(folderRepoPath, 0)
+
+    await copyFiles(mainRepoPath, folderRepoPath, folderPaths, config.ignore)
+
+    await fs.writeJson(`${folderRepoPath}/${CONFIG_FILENAME}`, config, {
+      spaces: 2,
+    })
+
+    const signature = folderRepo.defaultSignature()
+    const index = await folderRepo.refreshIndex()
+
+    const filePaths = (await folderRepo.getStatus()).map(file => file.path())
+
+    for (let addFilePath of filePaths) {
+      await index.addByPath(addFilePath)
+    }
+
+    await index.write()
+
+    const oid = await index.writeTree()
+
+    await folderRepo.createCommit(
+      'HEAD',
+      signature,
+      signature,
+      addCommmitMsgPrefix((await mainRepo.getHeadCommit()).sha()),
+      oid,
+      null
+    )
+  } catch (error) {
+    console.log(error)
   }
-
-  const mainRepoPath = await getTempRepo(repoUrl, branchName)
-
-  await fs.ensureDir(folderRepoPath)
-
-  const mainRepo = await Git.Repository.open(mainRepoPath)
-  await mainRepo.checkoutBranch(branchName)
-
-  const folderRepo = await Git.Repository.init(folderRepoPath, 0)
-
-  await copyFiles(mainRepoPath, folderRepoPath, folderPaths, config.ignore)
-
-  await fs.writeJson(`${folderRepoPath}/${CONFIG_FILENAME}`, config, {
-    spaces: 2
-  })
-
-  const signature = folderRepo.defaultSignature()
-  const index = await folderRepo.refreshIndex()
-
-  const filePaths = (await folderRepo.getStatus()).map(file => file.path())
-
-  for (let addFilePath of filePaths) {
-    await index.addByPath(addFilePath)
-  }
-
-  await index.write()
-
-  const oid = await index.writeTree()
-
-  await folderRepo.createCommit(
-    'HEAD',
-    signature,
-    signature,
-    addCommmitMsgPrefix((await mainRepo.getHeadCommit()).sha()),
-    oid,
-    null
-  )
 }

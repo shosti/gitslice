@@ -60,3 +60,4 @@ typings/
 tests/tmp
 
 dist/
+.vscode

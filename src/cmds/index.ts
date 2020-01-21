@@ -5,6 +5,7 @@ import { INVALID_ARG_MSG } from '@lib/constants'
 import { InitCommandType } from '@customTypes/cmd'
 import { ensureArray } from '@lib/utils'
 import initializeFolder from '@cmds/init'
+import pullRepo from '@cmds/pull'
 
 // const minimist = require('minimist')
 // const path = require('path')
@@ -38,21 +39,19 @@ export default async (currentDir: string, inputArgs: string[]) => {
   switch (command) {
     case 'init':
       const { repo, folder } = argv
+
       if (!(repo && folder && args.length)) {
         console.log(INVALID_ARG_MSG)
         return showHelp(command)
       }
 
       await initCommand({ ...argv, args })
-
       break
-    // case 'pull':
-    //   await updateFolderFromMain(
-    //     currentDir,
-    //     argv['username'],
-    //     argv['password']
-    //   )
-    //   break
+    case 'pull':
+      const { username, password } = argv
+
+      await pullRepo(currentDir, username, password)
+      break
     // case 'push':
     //   if (
     //     argv.branch &&

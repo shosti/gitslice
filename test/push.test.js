@@ -25,7 +25,7 @@ const {
   addCommmitMsgPrefix,
   removeCommitMsgPrefix,
   getCurBranch,
-  getTempRepoPath
+  getTempRepoPath,
 } = utils
 
 beforeAll(() => {

@@ -25,6 +25,7 @@
     "paths": {
       "@lib/*": ["lib/*"],
       "@cmds/*": ["cmds/*"],
+      "@graphql/*": ["graphql/*"],
       "@customTypes/*": ["types/*"]
     }
   },

@@ -3,7 +3,7 @@ const fs = require('fs-extra')
 const {
   getTempRepoPath,
   copyFiles,
-  addCommmitMsgPrefix
+  addCommmitMsgPrefix,
 } = require('../../lib/utils')
 const { CONFIG_FILENAME } = require('../../lib/constants')
 
@@ -16,7 +16,7 @@ module.exports = async function before(folderRepoPath) {
     repoUrl: repoToClone,
     folders: folderPaths,
     branch: branchName,
-    ignore: [CONFIG_FILENAME]
+    ignore: [CONFIG_FILENAME],
   }
   const mainRepoPath = getTempRepoPath(repoToClone)
   const mainRepo = await Git.Repository.open(mainRepoPath)
@@ -24,7 +24,7 @@ module.exports = async function before(folderRepoPath) {
 
   await copyFiles(mainRepoPath, folderRepoPath, folderPaths, [CONFIG_FILENAME])
   await fs.writeJson(`${folderRepoPath}/${CONFIG_FILENAME}`, config, {
-    spaces: 2
+    spaces: 2,
   })
   const signature = folderRepo.defaultSignature()
   let index = await folderRepo.refreshIndex()
@@ -46,6 +46,6 @@ module.exports = async function before(folderRepoPath) {
 
   return {
     main: mainRepo,
-    folder: folderRepo
+    folder: folderRepo,
   }
 }

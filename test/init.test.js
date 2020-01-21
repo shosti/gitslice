@@ -61,7 +61,7 @@ describe('Folder repo is forked correcly', () => {
       repoUrl: repoToClone,
       folders: folderPaths,
       branch: branchName,
-      ignore: [CONFIG_FILENAME]
+      ignore: [CONFIG_FILENAME],
     }
     expect(
       await fs.readJson(path.resolve(folderRepoPath, CONFIG_FILENAME))

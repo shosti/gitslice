@@ -7,7 +7,7 @@ const sinon = require('sinon')
 const {
   removeCommitMsgPrefix,
   getCurBranch,
-  getTempRepoPath
+  getTempRepoPath,
 } = require('../lib/utils')
 const utils = require('../lib/utils')
 const parseArgsAndExecute = require('../lib')

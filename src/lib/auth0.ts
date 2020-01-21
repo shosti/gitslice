@@ -1,4 +1,4 @@
-const request = require('request')
+import request from 'request'
 
 const AUTH0_CLIENT_ID = 'HfxEJ2QbOiuGPcpze7g5AU4QFdWVoM0U'
 const GITSLICE_PASSWORD = 'qKJnW*zftP7a*r_uV6Vq'
@@ -18,15 +18,11 @@ const options = {
   },
 }
 
-const getToken = async () => {
+export const getToken = async () => {
   return new Promise((resolve, reject) => {
     request(options, function(error, _, body) {
       if (error) reject(error)
       resolve(JSON.parse(body).id_token)
     })
   })
-}
-
-module.exports = {
-  getToken,
 }
