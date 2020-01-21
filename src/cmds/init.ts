@@ -2,8 +2,8 @@ import Git from 'nodegit'
 import fs from 'fs-extra'
 import path from 'path'
 
-import { addCommmitMsgPrefix, getTempRepo, copyFiles } from '@lib/utils'
-import { CONFIG_FILENAME } from '@lib/constants'
+import { addCommmitMsgPrefix, getTempRepo, copyFiles } from '../lib/utils'
+import { CONFIG_FILENAME } from '../lib/constants'
 
 export default async (
   repoUrl: string,

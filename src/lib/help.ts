@@ -1,5 +1,5 @@
 import getUsage from 'command-line-usage';
-import { Helptype } from '@customTypes/help'
+import { Helptype } from '../types/help'
 
 export default (command?: string) => {
   const intro: Helptype[] = [

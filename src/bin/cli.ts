@@ -1,12 +1,10 @@
-// #!/usr/bin/env node
-
-import 'module-alias/register'
+#!/usr/bin/env node
 
 import { config } from 'dotenv'
 
 config()
 
-import executeCommand from '@cmds/index'
+import executeCommand from '../cmds'
 
 try {
   executeCommand(process.cwd(), process.argv.slice(2))

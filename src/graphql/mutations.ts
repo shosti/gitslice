@@ -1,7 +1,7 @@
 import gql from 'graphql-tag'
 
 import { runMutation } from './index'
-import { getClientName, canUpsertDatabaseFromConfig } from '@lib/utils'
+import { getClientName, canUpsertDatabaseFromConfig } from '../lib/utils'
 import {
   InsertClientRepositoryCommitVariables,
   InsertClientRepositoryCommit,
@@ -14,7 +14,7 @@ import {
   UpsertDatabaseFromConfigVariables,
   UpsertDatabaseFromConfig,
 } from './generated/UpsertDatabaseFromConfig'
-import { GitSliceConfigType } from '@customTypes/graphql'
+import { GitSliceConfigType } from '../types/graphql'
 
 export const INSERT_CLIENT_REPOSITORY_COMMIT = gql`
   mutation InsertClientRepositoryCommit(

@@ -16,7 +16,7 @@
     "moduleResolution": "node",
     "removeComments": false,
     "resolveJsonModule": true,
-    "baseUrl": ".",
+    "baseUrl": "./src",
     "module": "commonjs",
     "outDir": "dist",
     "esModuleInterop": true,
@@ -26,14 +26,8 @@
     "jsx": "preserve",
     "preserveConstEnums": true,
     "typeRoots": ["./node_modules/@types"],
-    "rootDir": ".",
-    "lib": ["es2017"],
-    "paths": {
-      "@lib/*": ["src/lib/*"],
-      "@cmds/*": ["src/cmds/*"],
-      "@graphql/*": ["src/graphql/*"],
-      "@customTypes/*": ["src/types/*"]
-    }
+    "rootDir": "./src",
+    "lib": ["es2017"]
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist", "test", "tests"]

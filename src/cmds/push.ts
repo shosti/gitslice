@@ -2,11 +2,11 @@ import Git from 'nodegit';
 import path from 'path';
 import fs from 'fs-extra';
 
-import { getClientRepository, getClientCommitMessage, getClientCreds, } from '@graphql/query';
-import { addPushCommitInTask, upsertDatabaseFromConfig } from '@graphql/mutations';
-import { getAllFiles, getCurBranch, getLastGitSliceCommitHash, getTempRepo, copyFiles, pushTempRepo, findFile, createOrPullBranch } from '@lib/utils';
-import { CONFIG_FILENAME } from '@lib/constants';
-import { GitSliceConfigType } from '@customTypes/graphql';
+import { getClientRepository, getClientCommitMessage, getClientCreds, } from '../graphql/query';
+import { addPushCommitInTask, upsertDatabaseFromConfig } from '../graphql/mutations';
+import { getAllFiles, getCurBranch, getLastGitSliceCommitHash, getTempRepo, copyFiles, pushTempRepo, findFile, createOrPullBranch } from '../lib/utils';
+import { CONFIG_FILENAME } from '../lib/constants';
+import { GitSliceConfigType } from '../types/graphql';
 
 const { CIRCLE_REPOSITORY_URL, CIRCLE_PULL_REQUEST } = process.env
 
@@ -126,7 +126,7 @@ export default async (currentDir: string, branchName: string, commitMsg: string,
     const clientCommitSHA = (await mainRepo.getHeadCommit()).sha()
 
     if (!CIRCLE_PULL_REQUEST) return console.log("CIRCLE_PULL_REQUEST is required to add push commit to task")
-    
+
     await addPushCommitInTask({
       prLink: CIRCLE_PULL_REQUEST,
       clientCommitSHA,

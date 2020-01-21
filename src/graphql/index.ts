@@ -1,11 +1,11 @@
 import { ApolloClient, HttpLink, InMemoryCache } from 'apollo-boost'
 
-import { getToken } from '@lib/auth0'
+import { getToken } from '../lib/auth0'
 import {
   ApolloClientType,
   RunMutationArgs,
   RunQueryArgs,
-} from '@customTypes/graphql'
+} from '../types/graphql'
 
 const HASURA_GRAPHQL_ENGINE_DOMAIN = 'https://hasura.gitstart.com/v1/graphql'
 

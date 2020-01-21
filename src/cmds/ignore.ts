@@ -3,8 +3,8 @@ import path from 'path';
 import fs from 'fs-extra';
 import _ from 'lodash';
 
-import { CONFIG_FILENAME } from '@lib/constants';
-import { GitSliceConfigType } from '@customTypes/graphql';
+import { CONFIG_FILENAME } from '../lib/constants';
+import { GitSliceConfigType } from '../types/graphql';
 
 export default async (currentDir: string, filesToAdd: string[], filesToRemove: string[]) => {
   try {

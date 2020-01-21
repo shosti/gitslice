@@ -1,13 +1,13 @@
 import minimist from 'minimist'
 
-import showHelp from '@lib/help'
-import { INVALID_ARG_MSG } from '@lib/constants'
-import { InitCommandType } from '@customTypes/cmd'
-import { ensureArray } from '@lib/utils'
-import initializeFolder from '@cmds/init'
-import pullRepo from '@cmds/pull'
-import pushRepo from '@cmds/push';
-import modifyIgnoredFiles from '@cmds/ignore';
+import showHelp from '../lib/help'
+import { INVALID_ARG_MSG } from '../lib/constants'
+import { InitCommandType } from '../types/cmd'
+import { ensureArray } from '../lib/utils'
+import initializeFolder from './init'
+import pullRepo from './pull'
+import pushRepo from './push';
+import modifyIgnoredFiles from './ignore';
 
 const initCommand = async ({ repo, folder, branch, args }: InitCommandType) => {
   const [forkedRepo] = args

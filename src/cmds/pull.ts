@@ -2,11 +2,11 @@ import Git from 'nodegit';
 import path from 'path';
 import fs from 'fs-extra';
 
-import { addCommmitMsgPrefix, getTempRepo, copyFiles, deleteFiles, findFile } from '@lib/utils';
-import { CONFIG_FILENAME } from '@lib/constants';
-import {  insertClientRepositoryCommit, upsertDatabaseFromConfig } from '@graphql/mutations';
-import { getClientRepository, getClientCreds } from '@graphql/query';
-import { GitSliceConfigType } from '@customTypes/graphql';
+import { addCommmitMsgPrefix, getTempRepo, copyFiles, deleteFiles, findFile } from '../lib/utils';
+import { CONFIG_FILENAME } from '../lib/constants';
+import {  insertClientRepositoryCommit, upsertDatabaseFromConfig } from '../graphql/mutations';
+import { getClientRepository, getClientCreds } from '../graphql/query';
+import { GitSliceConfigType } from '../types/graphql';
 
 const { CIRCLE_REPOSITORY_URL } = process.env;
 

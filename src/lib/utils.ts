@@ -6,7 +6,7 @@ import fs from 'fs-extra'
 import CliProgress from 'cli-progress'
 import readlineSync from 'readline-sync'
 import nodeFs from 'fs'
-import { GitSliceConfigType } from '@customTypes/graphql'
+import { GitSliceConfigType } from '../types/graphql'
 
 let _username: string | null = null
 let _password: string | null = null

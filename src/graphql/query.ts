@@ -1,7 +1,7 @@
 import gql from 'graphql-tag'
 
 import { runQuery } from './index'
-import { getAccessEndpointFromRepoUrl } from '@lib/utils'
+import { getAccessEndpointFromRepoUrl } from '../lib/utils'
 import {
   GetClientRepositoryVariables,
   GetClientRepository_client_repositories,
