@@ -106,7 +106,7 @@ const setCredentials = (username: string, password: string) => {
   }
 }
 export const addCommmitMsgPrefix = msg => COMMIT_MSG_PREFIX + msg
-const getAllFiles = async (dir: string) => {
+export const getAllFiles = async (dir: string) => {
   try {
     let results = []
 
@@ -259,3 +259,51 @@ export const getAccessEndpointFromRepoUrl = (repoUrl: string) => {
 }
 
 export const getClientName = (repoName: string) => repoName.split('-')[1]
+
+export const getCurBranch = async (repo: Git.Repository) => (await repo.getCurrentBranch()).name().replace('refs/heads/', '');
+
+export const getLastGitSliceCommitHash = async (repo: Git.Repository): Promise<string> => {
+  const revwalk = Git.Revwalk.create(repo)
+  revwalk.pushHead()
+  const commits = await revwalk.getCommitsUntil(c => true)
+  const commit = commits
+    .find(x => x.message().indexOf(COMMIT_MSG_PREFIX) === 0)
+    .message()
+  return commit.replace(COMMIT_MSG_PREFIX, '')
+}
+
+export const pushTempRepo = async (repoUrl: string, branch: string) => {
+  try {
+    const mainRepoPath = getTempRepoPath(repoUrl)
+    const repo = await Git.Repository.open(mainRepoPath)
+    const origin = await repo.getRemote('origin')
+
+    await origin.push([`refs/heads/${branch}:refs/heads/${branch}`], {
+      callbacks: {
+        credentials: promptForCredentials,
+        transferProgress,
+      },
+    })
+    progressBar.stop()
+  } catch (e) {
+    progressBar.stop()
+    return Promise.reject(`Unable to push to ${repoUrl}: ${e.toString()}`)
+  }
+}
+
+export const createOrPullBranch = async (repo: Git.Repository, branchName: string, commitHash: string) => {
+  const refs = await repo.getReferenceNames(Git.Reference.TYPE.LISTALL)
+
+  if (refs.indexOf(`refs/heads/${branchName}`) == -1) {
+    console.log('Creating a new local branch...')
+    await repo.createBranch(branchName, commitHash, false)
+  }
+
+  if (refs.indexOf(`refs/remotes/origin/${branchName}`) >= 0) {
+    console.log('Updating the local branch from remote...')
+    await repo.mergeBranches(
+      `refs/heads/${branchName}`,
+      `refs/remotes/origin/${branchName}`
+    )
+  }
+}
