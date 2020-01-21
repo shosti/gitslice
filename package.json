@@ -48,10 +48,18 @@
   },
   "devDependencies": {
     "@types/chai": "^4.2.7",
+    "@types/cli-progress": "^3.4.1",
+    "@types/command-line-usage": "^5.0.1",
     "@types/debug": "^4.1.5",
+    "@types/fs-extra": "^8.0.1",
+    "@types/lodash": "^4.14.149",
+    "@types/minimist": "^1.2.0",
+    "@types/mocha": "^5.2.7",
     "@types/nodegit": "^0.26.1",
-    "@types/sinon": "^7.5.1",
+    "@types/readline-sync": "^1.4.3",
     "@types/request": "^2.48.4",
+    "@types/sinon": "^7.5.1",
+    "@types/string-hash": "^1.1.1",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "chai": "^4.2.0",
     "codecov": "^3.6.1",
@@ -66,10 +74,10 @@
     "prettier": "1.11.1",
     "ts-node": "^8.6.1",
     "tsconfig-paths": "^3.9.0",
-    "typescript": "^3.7.4",
     "tslint": "^5.20.0",
     "tslint-config-prettier": "^1.18.0",
-    "type-coverage": "^2.3.0"
+    "type-coverage": "^2.3.0",
+    "typescript": "^3.7.4"
   },
   "engines": {
     "node": "~10.16.0"

@@ -1,0 +1,54 @@
+import Git from 'nodegit';
+import fs from 'fs-extra';
+
+import {
+  getTempRepoPath,
+  copyFiles,
+  addCommmitMsgPrefix,
+} from'../../src/lib/utils';
+
+import { CONFIG_FILENAME } from '../../src/lib/constants';
+
+const repoToClone = 'https://github.com/murcul/git-slice.git'
+const folderPaths = ['lib', 'bin'] // to be modified with the repo
+const branchName = 'master'
+
+export default async (folderRepoPath: string): Promise<{ main: Git.Repository, folder: Git.Repository }> => {
+  const config = {
+    repoUrl: repoToClone,
+    folders: folderPaths,
+    branch: branchName,
+    ignore: [CONFIG_FILENAME],
+  }
+
+  const mainRepoPath = getTempRepoPath(repoToClone);
+  const mainRepo = await Git.Repository.open(mainRepoPath)
+  const folderRepo = await Git.Repository.init(folderRepoPath, 0)
+
+  await copyFiles(mainRepoPath, folderRepoPath, folderPaths, [CONFIG_FILENAME])
+  await fs.writeJson(`${folderRepoPath}/${CONFIG_FILENAME}`, config, {
+    spaces: 2,
+  })
+  const signature = folderRepo.defaultSignature()
+  let index = await folderRepo.refreshIndex()
+  for (let addFilePath of (await folderRepo.getStatus()).map(file =>
+    file.path()
+  )) {
+    await index.addByPath(addFilePath)
+  }
+  await index.write()
+  const oid = await index.writeTree()
+  await folderRepo.createCommit(
+    'HEAD',
+    signature,
+    signature,
+    addCommmitMsgPrefix((await mainRepo.getHeadCommit()).sha()),
+    oid,
+    []
+  )
+
+  return {
+    main: mainRepo,
+    folder: folderRepo,
+  }
+}

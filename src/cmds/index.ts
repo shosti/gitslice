@@ -29,7 +29,7 @@ export default async (currentDir: string, inputArgs: string[]) => {
 
   if (help) return showHelp(command)
 
-  const { username, password } = argv
+  const { username, password, branch } = argv
 
   switch (command) {
     case 'init':
@@ -40,14 +40,14 @@ export default async (currentDir: string, inputArgs: string[]) => {
         return showHelp(command)
       }
 
-      await initCommand({ ...argv, args })
+      await initCommand({ branch, repo, folder, args })
       break
     case 'pull':
 
       await pullRepo(currentDir, username, password)
       break
     case 'push':
-      const { branch, message, 'author-email': authorEmail, 'author-name': authorName} = argv; 
+      const { message, 'author-email': authorEmail, 'author-name': authorName} = argv; 
 
       if (!(branch && message && authorName && authorEmail )) {
         console.log(INVALID_ARG_MSG)

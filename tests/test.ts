@@ -1,1 +1,2 @@
-import './setup'
+import './setup';
+import './utils.test';

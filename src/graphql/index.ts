@@ -10,7 +10,7 @@ import {
 const HASURA_GRAPHQL_ENGINE_DOMAIN = 'https://hasura.gitstart.com/v1/graphql'
 
 const getApolloClient = (() => {
-  let apolloClient: ApolloClientType = null
+  let apolloClient: ApolloClientType | null = null
 
   return async (): Promise<ApolloClientType> => {
     if (!!apolloClient) return apolloClient

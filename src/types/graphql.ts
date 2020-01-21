@@ -1,12 +1,12 @@
-import { ApolloClient, NormalizedCacheObject } from 'apollo-boost'
+import { ApolloClient, NormalizedCacheObject, DocumentNode } from 'apollo-boost'
 
 export type RunMutationArgs<variableType> = {
-  mutation: string
+  mutation: DocumentNode
   variables: variableType
 }
 
 export type RunQueryArgs<variableType> = {
-  query: string
+  query: DocumentNode
   variables: variableType
 }
 

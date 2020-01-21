@@ -55,7 +55,7 @@ export default async (
       signature,
       addCommmitMsgPrefix((await mainRepo.getHeadCommit()).sha()),
       oid,
-      null
+      []
     )
   } catch (error) {
     console.log(error)

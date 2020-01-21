@@ -13,8 +13,9 @@ const { CIRCLE_REPOSITORY_URL } = process.env;
 export default async (currentDir: string, username: string, password: string) => {
   try {
     const config: GitSliceConfigType = await fs.readJson(path.resolve(currentDir, CONFIG_FILENAME));
-    
+
     await upsertDatabaseFromConfig(config, CIRCLE_REPOSITORY_URL);
+    
     const clientRepoDetails = await getClientRepository(CIRCLE_REPOSITORY_URL);
 
     let clientRepoUrl = !!clientRepoDetails ? clientRepoDetails.clientRepoUrl || config.repo : config.repoUrl;
@@ -95,7 +96,7 @@ export default async (currentDir: string, username: string, password: string) =>
 
     const slicedCommitSHA = (await folderRepo.getHeadCommit()).sha();
 
-    if (clientRepoDetails?.id) {
+    if (!!clientRepoDetails && clientRepoDetails.id) {
       await insertClientRepositoryCommit({
         clientBaseCommitSHA,
         slicedCommitSHA,

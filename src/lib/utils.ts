@@ -6,9 +6,10 @@ import fs from 'fs-extra'
 import CliProgress from 'cli-progress'
 import readlineSync from 'readline-sync'
 import nodeFs from 'fs'
+import { GitSliceConfigType } from '@customTypes/graphql'
 
-let _username: string = null
-let _password: string = null
+let _username: string | null = null
+let _password: string | null = null
 
 const COMMIT_MSG_PREFIX = 'git-slice:'
 
@@ -34,7 +35,7 @@ async function promptForCredentials(url: string) {
   return Git.Cred.userpassPlaintextNew(_username, _password)
 }
 
-function transferProgress(stats) {
+function transferProgress(stats: any) {
   if (stats.receivedObjects() === 0)
     progressBar.start(stats.totalObjects(), stats.receivedObjects())
 
@@ -92,7 +93,7 @@ async function updateFromOrigin(
   }
 }
 
-const getTempRepoPath = (url: string): string =>
+export const getTempRepoPath = (url: string): string =>
   path.join(os.tmpdir(), 'git-slice', hash(url).toString())
 const setCredentials = (username: string, password: string) => {
   if (username && password) {
@@ -105,10 +106,12 @@ const setCredentials = (username: string, password: string) => {
     _password = readlineSync.question('Password: ', { hideEchoBack: true })
   }
 }
-export const addCommmitMsgPrefix = msg => COMMIT_MSG_PREFIX + msg
-export const getAllFiles = async (dir: string) => {
+export const addCommmitMsgPrefix = (msg: string) => COMMIT_MSG_PREFIX + msg
+export const removeCommitMsgPrefix = (msg: string) => msg.replace(COMMIT_MSG_PREFIX, '')
+
+export const getAllFiles = async (dir: string): Promise<string[]> => {
   try {
-    let results = []
+    let results: string[] = []
 
     const list = await fs.readdir(dir)
     if (!list.length) return results
@@ -141,7 +144,7 @@ export async function getTempRepo(
     const repo = await Git.Repository.open(mainRepoPath)
     const origin = await repo.getRemote('origin')
 
-    setCredentials(username, password)
+    if (username && password) setCredentials(username, password)
 
     if (origin.url() === mainUrl)
       await updateFromOrigin(origin.url(), repo, branch)
@@ -161,7 +164,7 @@ const getSinlgeSymlink = async (
   destination: string,
   ignoredFiles: string[]
 ) => {
-  const singleFile = async (sourceFile: string): Promise<string | null> => {
+  const singleFile = async (sourceFile: string): Promise<string | null | undefined> => {
     const isGitIgnored = await Git.Ignore.pathIsIgnored(repo, sourceFile)
 
     if (!isGitIgnored && !ignoredFiles.includes(sourceFile)) {
@@ -196,7 +199,7 @@ export const copyFiles = async (
   folders: string[],
   ignored: string[]
 ) => {
-  let symbolicLinks = []
+  let symbolicLinks: string[] = []
 
   const repo = await Git.Repository.open(source)
 
@@ -242,11 +245,12 @@ export const findFile = (startPath: string, filter: string): string[] => {
 
     return []
   }
-
-  return fs.readdirSync(startPath).reduce((acc, file) => {
+  
+  return fs.readdirSync(startPath).reduce((acc: string[], file: string) => {
     const filepath = path.join(startPath, file)
     const isDirectory = fs.lstatSync(filepath).isDirectory()
-    if (isDirectory) return [...acc, findFile(filepath, filter)]
+
+    if (isDirectory) return [...acc, ...findFile(filepath, filter)]
 
     return [...acc, filepath]
   }, [])
@@ -265,7 +269,7 @@ export const getCurBranch = async (repo: Git.Repository) => (await repo.getCurre
 export const getLastGitSliceCommitHash = async (repo: Git.Repository): Promise<string> => {
   const revwalk = Git.Revwalk.create(repo)
   revwalk.pushHead()
-  const commits = await revwalk.getCommitsUntil(c => true)
+  const commits = await revwalk.getCommitsUntil(() => true)
   const commit = commits
     .find(x => x.message().indexOf(COMMIT_MSG_PREFIX) === 0)
     .message()
@@ -306,4 +310,16 @@ export const createOrPullBranch = async (repo: Git.Repository, branchName: strin
       `refs/remotes/origin/${branchName}`
     )
   }
+}
+
+export const canUpsertDatabaseFromConfig = (config: GitSliceConfigType, slicedRepoUrl: string | null | undefined): boolean => {
+  const { folders, ignore, branch, repoUrl } = config;
+  if (!folders || !ignore || !branch || !repoUrl || !slicedRepoUrl) {
+    console.log(	
+      'Config does not have all the fields so unable to save config to the database!'	
+    );
+    return false;
+  }
+
+  return true
 }

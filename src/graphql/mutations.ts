@@ -1,7 +1,7 @@
 import gql from 'graphql-tag'
 
 import { runMutation } from './index'
-import { getClientName } from '@lib/utils'
+import { getClientName, canUpsertDatabaseFromConfig } from '@lib/utils'
 import {
   InsertClientRepositoryCommitVariables,
   InsertClientRepositoryCommit,
@@ -123,8 +123,12 @@ export const addPushCommitInTask = async (
 
 export const upsertDatabaseFromConfig = async (
   config: GitSliceConfigType,
-  slicedRepoUrl: string
-): Promise<UpsertDatabaseFromConfig> => {
+  slicedRepoUrl?: string
+): Promise<UpsertDatabaseFromConfig | void> => {
+
+  if (!slicedRepoUrl) return console.log("slicedRepoUrl is required")
+  if (!canUpsertDatabaseFromConfig(config, slicedRepoUrl)) return
+
   const data = await runMutation<
     UpsertDatabaseFromConfig,
     UpsertDatabaseFromConfigVariables

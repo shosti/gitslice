@@ -13,6 +13,7 @@ const { CIRCLE_REPOSITORY_URL, CIRCLE_PULL_REQUEST } = process.env
 export default async (currentDir: string, branchName: string, commitMsg: string, authorName: string, authorEmail: string, password: string) => {
   try {
     const config: GitSliceConfigType = await fs.readJson(path.resolve(currentDir, CONFIG_FILENAME))
+
     await upsertDatabaseFromConfig(config, CIRCLE_REPOSITORY_URL)
 
     const [clientRepoDetails, clientCommitMessageData] = await Promise.all([
@@ -23,7 +24,7 @@ export default async (currentDir: string, branchName: string, commitMsg: string,
     let clientRepoUrl = !!clientRepoDetails ? clientRepoDetails.clientRepoUrl || config.repo : config.repoUrl;
     let clientBaseBranchName = !!clientRepoDetails ? clientRepoDetails.clientBaseBranchName || config.branch : config.branch;
 
-    const clientCommitMessage = clientCommitMessageData.clientCommitMessage || commitMsg || 'implementation';
+    const clientCommitMessage = (!!clientCommitMessageData && clientCommitMessageData.clientCommitMessage) || commitMsg || 'implementation';
 
     const creds = await getClientCreds(clientRepoUrl)
 
@@ -110,7 +111,7 @@ export default async (currentDir: string, branchName: string, commitMsg: string,
     const parent = await mainRepo.getCommit(
       await Git.Reference.nameToId(mainRepo, 'HEAD')
     )
-    const commitOid = await mainRepo.createCommit(
+    await mainRepo.createCommit(
       'HEAD',
       signature,
       signature,
@@ -124,6 +125,8 @@ export default async (currentDir: string, branchName: string, commitMsg: string,
     const pushedCommitSHA = (await folderRepo.getHeadCommit()).sha()
     const clientCommitSHA = (await mainRepo.getHeadCommit()).sha()
 
+    if (!CIRCLE_PULL_REQUEST) return console.log("CIRCLE_PULL_REQUEST is required to add push commit to task")
+    
     await addPushCommitInTask({
       prLink: CIRCLE_PULL_REQUEST,
       clientCommitSHA,

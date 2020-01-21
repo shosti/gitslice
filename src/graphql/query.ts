@@ -52,8 +52,10 @@ export const GET_CLIENT_CREDS = gql`
 `
 
 export const getClientRepository = async (
-  slicedRepoUrl: string
-): Promise<GetClientRepository_client_repositories> => {
+  slicedRepoUrl?: string
+): Promise<GetClientRepository_client_repositories | void> => {
+  if (!slicedRepoUrl) return;
+
   const { client_repositories } = await runQuery<
     GetClientRepository,
     GetClientRepositoryVariables
@@ -68,8 +70,9 @@ export const getClientRepository = async (
 }
 
 export const getClientCommitMessage = async (
-  prLink: string
-): Promise<GetClientCommitMessage_tasks> => {
+  prLink?: string
+): Promise<GetClientCommitMessage_tasks | void> => {
+  if (!prLink) return
   const { tasks } = await runQuery<
     GetClientCommitMessage,
     GetClientCommitMessageVariables
