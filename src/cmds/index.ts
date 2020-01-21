@@ -7,16 +7,8 @@ import { ensureArray } from '@lib/utils'
 import initializeFolder from '@cmds/init'
 import pullRepo from '@cmds/pull'
 import pushRepo from '@cmds/push';
+import modifyIgnoredFiles from '@cmds/ignore';
 
-// const minimist = require('minimist')
-// const path = require('path')
-// const initializeFolder = require('./cmds/init')
-// const updateFolderFromMain = require('./cmds/pull')
-// const updateMainFromFolder = require('./cmds/push')
-// const modifyIgnoredFiles = require('./cmds/ignore')
-// const showHelp = require('./help')
-// const { INVALID_ARG_MSG } = require('./constants')
-// const { ensureArray } = require('./utils')
 const initCommand = async ({ repo, folder, branch, args }: InitCommandType) => {
   const [forkedRepo] = args
   const folders = ensureArray(folder)
@@ -65,16 +57,17 @@ export default async (currentDir: string, inputArgs: string[]) => {
       await pushRepo(currentDir, branch, message, authorName, authorEmail, password);
 
       break;
-    // case 'ignore':
-    //   if (argv.add || argv.remove) {
-    //     const filesToAdd = ensureArray(argv.add)
-    //     const filesToRemove = ensureArray(argv.remove)
-    //     await modifyIgnoredFiles(currentDir, filesToAdd, filesToRemove)
-    //   } else {
-    //     console.log(INVALID_ARG_MSG)
-    //     showHelp(command)
-    //   }
-    //   break
+    case 'ignore':
+      if (argv.add || argv.remove) {
+        const filesToAdd = ensureArray(argv.add)
+        const filesToRemove = ensureArray(argv.remove)
+        
+        await modifyIgnoredFiles(currentDir, filesToAdd, filesToRemove)
+      } else {
+        console.log(INVALID_ARG_MSG)
+        showHelp(command)
+      }
+      break
     default:
       showHelp()
   }
