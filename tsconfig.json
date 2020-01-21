@@ -1,25 +1,31 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true,
+    "inlineSources": true,
+    "pretty": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "sourceMap": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "moduleResolution": "node",
+    "removeComments": false,
+    "resolveJsonModule": true,
+    "baseUrl": "./src",
     "module": "commonjs",
+    "outDir": "dist",
     "esModuleInterop": true,
     "target": "es2017",
+    "isolatedModules": false,
+    "noEmit": false,
     "jsx": "preserve",
-    "allowJs": true,
-    "moduleResolution": "node",
-    "emitDecoratorMetadata": true,
-    "resolveJsonModule": true,
-    "experimentalDecorators": true,
-    "allowSyntheticDefaultImports": true,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "removeComments": false,
     "preserveConstEnums": true,
-    "sourceMap": true,
-    "skipLibCheck": true,
-    "baseUrl": "./src",
     "typeRoots": ["./node_modules/@types"],
-    "outDir": "dist",
     "rootDir": "./src",
     "lib": ["es2017"],
     "paths": {
@@ -29,6 +35,6 @@
       "@customTypes/*": ["types/*"]
     }
   },
-  "include": ["src"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist", "test", "tests"]
 }

@@ -1,4 +1,5 @@
 FROM node:10
 COPY . .
-RUN npm install
-ENTRYPOINT ["node", "./bin/cli.js"]
+RUN yarn install
+RUN yarn build
+ENTRYPOINT ["node", "./dist/bin/cli.js"]
