@@ -29,7 +29,7 @@
     "graphql-tag": "^2.10.1",
     "isomorphic-unfetch": "^3.0.0",
     "minimist": "^1.2.5",
-    "nodegit": "^0.27.0",
+    "nodegit": "^0.24.1",
     "readline-sync": "^1.4.9",
     "sinon": "^7.2.4",
     "string-hash": "^1.1.3",
