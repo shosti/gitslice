@@ -94,14 +94,14 @@ describe('getAllFiles', () => {
 
   it('should return the current files in the directory', async () => {
     allFiles = await getAllFiles(folderRepoPath)
-    expect(allFiles.length).toBe(37)
+    expect(allFiles.length).toBe(46)
   })
 
   it('should return all files in a directory', async () => {
     await fs.outputFile(test1Path, test1Text)
     await fs.outputFile(test2Path, test2Text)
     allFiles = await getAllFiles(folderRepoPath)
-    expect(allFiles.length).toBe(39)
+    expect(allFiles.length).toBe(48)
     expect(await fs.readFile(test1Path, 'utf8')).toBe('Test 1!')
     expect(await fs.readFile(test2Path, 'utf8')).toBe('Test 2!')
   })

@@ -8,6 +8,6 @@ after(async function() {
   const mainRepoPath = getTempRepoPath(repoToClone)
   const setupFolder = path.join(__dirname, '..', 'tmp/setup')
 
-  await fs.remove(mainRepoPath)
-  await fs.remove(setupFolder)
+  // await fs.remove(mainRepoPath)
+  // await fs.remove(setupFolder)
 })

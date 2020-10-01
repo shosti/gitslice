@@ -23,8 +23,9 @@ let folderRepo
 
 const repoToClone = 'https://github.com/murcul/git-slice.git'
 const mainRepoPath = getTempRepoPath(repoToClone)
-const authorName = 'Murcul'
+const authorName = process.env.GITHUB_USER_NAME || 'Murcul'
 const authorEmail = 'murcul@murcul.com'
+const userPassword = process.env.GITHUB_PASSWORD
 
 beforeEach(async function() {
   this.timeout(10000)
@@ -38,7 +39,7 @@ afterEach(async () => {
 })
 
 describe('Main repo is synced properly with folder repo', function() {
-  this.timeout(10000)
+  this.timeout(30000)
   it.only('properly updates if the branch already exists in the main repo', async () => {
     const branchName = 'push-test-branch-1'
     const commitMsg = 'added some files'
@@ -75,7 +76,7 @@ describe('Main repo is synced properly with folder repo', function() {
 
     await fs.outputFile(testFile1Path, testFile1Text)
     await fs.outputFile(testFile2Path, testFile2Text)
-    const signature = mainRepo.defaultSignature()
+    const signature = await mainRepo.defaultSignature()
 
     // commit textFile4 in main repo
     const mainRepoIndex = await mainRepo.refreshIndex()
@@ -111,9 +112,11 @@ describe('Main repo is synced properly with folder repo', function() {
       oid,
       [parent]
     )
-    const pushCmd = `push --branch ${branchName} --message ${commitMsg} --author-name ${authorName} --author-email ${authorEmail}`
+    const pushCmd = `push --branch ${branchName} --message ${commitMsg} --author-name ${authorName} --author-email ${authorEmail} --password ${userPassword}`
     await parseArgsAndExecute(folderRepoPath, pushCmd.split(' '))
     pushTempRepo.restore()
+
+    await mainRepo.mergeBranches(branchName, `origin/${branchName}`)
 
     expect(
       await fs.readFile(
@@ -121,7 +124,8 @@ describe('Main repo is synced properly with folder repo', function() {
         'utf8'
       )
     ).toBe(testFile1Text)
-    expect(await fs.exists(testFile2Path)).toBe(false)
+
+    expect(fs.existsSync(testFile2Path)).toBe(false)
   })
 
   it('does not push if master branch is checked out', async () => {
@@ -131,7 +135,7 @@ describe('Main repo is synced properly with folder repo', function() {
 
     const branchName = 'test-branch-5'
     const commitMsg = 'random commit for testing'
-    const pushCmd = `push --branch ${branchName} --message ${commitMsg} --author-name ${authorName} --author-email ${authorEmail}`
+    const pushCmd = `push --branch ${branchName} --message ${commitMsg} --author-name ${authorName} --author-email ${authorEmail} --password ${userPassword}`
     try {
       await parseArgsAndExecute(folderRepoPath, pushCmd.split(' '))
     } catch (e) {
@@ -162,7 +166,7 @@ describe('Main repo is synced properly with folder repo', function() {
     await fs.outputFile(testFile1Path, testFile1Text)
 
     try {
-      const pushCmd = `push --branch ${branchName} --message ${commitMsg} --author-name ${authorName} --author-email ${authorEmail}`
+      const pushCmd = `push --branch ${branchName} --message ${commitMsg} --author-name ${authorName} --author-email ${authorEmail} --password ${userPassword}`
       await parseArgsAndExecute(folderRepoPath, pushCmd.split(' '))
     } catch (e) {
       expect(e).toBe('Error: cannot push with uncommitted changes')
@@ -190,7 +194,7 @@ describe('Main repo is synced properly with folder repo', function() {
 
     const testFile1Text = 'Hello World!'
     await fs.outputFile(testFile1Path, testFile1Text)
-    const signature = mainRepo.defaultSignature()
+    const signature = await mainRepo.defaultSignature()
 
     let index = await folderRepo.refreshIndex()
     await index.addByPath(path.relative(folderRepoPath, testFile1Path))
@@ -207,7 +211,7 @@ describe('Main repo is synced properly with folder repo', function() {
       oid,
       [parent]
     )
-    const pushCmd = `push --branch ${branchName} --message ${commitMsg} --author-name ${authorName} --author-email ${authorEmail}`
+    const pushCmd = `push --branch ${branchName} --message ${commitMsg} --author-name ${authorName} --author-email ${authorEmail} --password ${userPassword}`
     await parseArgsAndExecute(folderRepoPath, pushCmd.split(' '))
     expect(pushTempRepo).toHaveBeenCalledTimes(1)
     pushTempRepo.restore()
@@ -234,7 +238,7 @@ describe('Main repo is synced properly with folder repo', function() {
 
     const testFile1Text = "Hello World! How's everything going?"
     await fs.outputFile(testFile1Path, testFile1Text)
-    const signature = mainRepo.defaultSignature()
+    const signature = await mainRepo.defaultSignature()
 
     let index = await folderRepo.refreshIndex()
     await index.addByPath(path.relative(folderRepoPath, testFile1Path))
@@ -251,7 +255,7 @@ describe('Main repo is synced properly with folder repo', function() {
       oid,
       [parent]
     )
-    const pushCmd = `push --branch ${branchName} --message ${commitMsg} --author-name ${authorName} --author-email ${authorEmail}`
+    const pushCmd = `push --branch ${branchName} --message ${commitMsg} --author-name ${authorName} --author-email ${authorEmail} --password ${userPassword}`
     await parseArgsAndExecute(folderRepoPath, pushCmd.split(' '))
     expect(pushTempRepo).toHaveBeenCalledTimes(1)
     pushTempRepo.restore()
