@@ -3,7 +3,7 @@ const fs = require('fs-extra')
 const expect = require('expect')
 
 const parseArgsAndExecute = require('../lib')
-const { CONFIG_FILENAME } = require('../lib/constants')
+const { CONFIG_FILENAME, DEFAULT_BRANCH } = require('../lib/constants')
 const { getCurBranch, addCommmitMsgPrefix } = require('../lib/utils')
 const before = require('./helpers/before')
 
@@ -58,7 +58,7 @@ describe('Folder repo is synced properly with main repo', () => {
     await fs.remove(folderRepoPath)
   })
 
-  it('checkouts to the master branch before pulling', async () => {
+  it('checkouts to the default branch before pulling', async () => {
     let branchName = 'pull-test-branch'
     await folderRepo.createBranch(
       branchName,
@@ -68,7 +68,7 @@ describe('Folder repo is synced properly with main repo', () => {
     await folderRepo.checkoutBranch(branchName)
     await folderRepo.setHead(`refs/heads/${branchName}`)
     await parseArgsAndExecute(folderRepoPath, ['pull'])
-    expect(await getCurBranch(folderRepo)).toBe('master')
+    expect(await getCurBranch(folderRepo)).toBe(DEFAULT_BRANCH)
   })
 
   it('does not pull if there are uncommitted changes', async () => {
