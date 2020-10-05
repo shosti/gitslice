@@ -2,6 +2,8 @@ const Git = require('nodegit')
 const fs = require('fs-extra')
 const path = require('path')
 const expect = require('expect')
+const sinon = require('sinon')
+
 const parseArgsAndExecute = require('../lib')
 
 const {
@@ -24,12 +26,14 @@ let mainRepo
 const COMMIT_MSG_PREFIX = 'git-slice:'
 
 beforeEach(async function() {
-  this.timeout(10000)
+  this.timeout(30000)
+  sinon.stub(process, 'exit')
   const { main, folder } = await before(folderRepoPath)
   mainRepo = main
   folderRepo = folder
 })
 afterEach(async () => {
+  sinon.restore()
   await fs.remove(folderRepoPath)
 })
 
@@ -94,14 +98,14 @@ describe('getAllFiles', () => {
 
   it('should return the current files in the directory', async () => {
     allFiles = await getAllFiles(folderRepoPath)
-    expect(allFiles.length).toBe(46)
+    expect(allFiles.length).toBe(37)
   })
 
   it('should return all files in a directory', async () => {
     await fs.outputFile(test1Path, test1Text)
     await fs.outputFile(test2Path, test2Text)
     allFiles = await getAllFiles(folderRepoPath)
-    expect(allFiles.length).toBe(48)
+    expect(allFiles.length).toBe(39)
     expect(await fs.readFile(test1Path, 'utf8')).toBe('Test 1!')
     expect(await fs.readFile(test2Path, 'utf8')).toBe('Test 2!')
   })
@@ -126,8 +130,10 @@ describe('getLastGitSliceCommitHash', () => {
 
 describe('error tests', () => {
   it('on error process should return error code 1', async () => {
-    await parseArgsAndExecute(folderRepoPath + 'FOO', ['pull'])
-
-    expect(process.exit.calledWith(1)).toEqual(true)
+    try {
+      await parseArgsAndExecute(folderRepoPath + 'FOO', ['pull'])
+    } catch (error) {
+      expect(process.exit.calledWith(1)).toEqual(true)
+    }
   })
 })

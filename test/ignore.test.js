@@ -2,10 +2,10 @@ const expect = require('expect')
 const fs = require('fs-extra')
 const path = require('path')
 const sinon = require('sinon')
+
 const parseArgsAndExecute = require('../lib')
 const { CONFIG_FILENAME } = require('../lib/constants')
 const before = require('./helpers/before')
-sinon.stub(process, 'exit')
 
 const folderRepoRelativePath = './tmp/ignore'
 const folderRepoPath = path.resolve(__dirname, folderRepoRelativePath)
@@ -13,11 +13,13 @@ const folderRepoPath = path.resolve(__dirname, folderRepoRelativePath)
 let folderRepo
 
 beforeEach(async function() {
-  this.timeout(10000)
+  this.timeout(30000)
+  sinon.stub(process, 'exit')
   const { folder } = await before(folderRepoPath)
   folderRepo = folder
 })
 afterEach(async () => {
+  sinon.restore()
   await fs.remove(folderRepoPath)
 })
 

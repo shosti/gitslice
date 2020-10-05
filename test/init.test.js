@@ -1,12 +1,13 @@
 const path = require('path')
 const fs = require('fs-extra')
 const expect = require('expect')
+
 const { CONFIG_FILENAME } = require('../lib/constants')
 const { addCommmitMsgPrefix } = require('../lib/utils')
+const before = require('./helpers/before')
 
 const folderRepoRelativePath = './tmp/init'
 const folderRepoPath = path.resolve(__dirname, folderRepoRelativePath)
-const before = require('./helpers/before')
 
 const repoToClone = 'https://github.com/murcul/git-slice.git'
 const folderPaths = ['lib', 'bin'] // to be modified with the repo
@@ -16,7 +17,7 @@ const branchName = 'master'
 let mainRepo
 let folderRepo
 beforeEach(async function() {
-  this.timeout(10000)
+  this.timeout(30000)
   const { main, folder } = await before(folderRepoPath)
   mainRepo = main
   folderRepo = folder

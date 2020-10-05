@@ -1,6 +1,7 @@
 const path = require('path')
 const fs = require('fs-extra')
 const expect = require('expect')
+const sinon = require('sinon')
 
 const parseArgsAndExecute = require('../lib')
 const { CONFIG_FILENAME } = require('../lib/constants')
@@ -17,12 +18,14 @@ let mainRepo
 let folderRepo
 
 beforeEach(async function() {
-  this.timeout(10000)
+  this.timeout(30000)
+  sinon.stub(process, 'exit')
   const { main, folder } = await before(folderRepoPath)
   mainRepo = main
   folderRepo = folder
 })
 afterEach(async () => {
+  sinon.restore()
   await fs.remove(folderRepoPath)
 })
 
@@ -72,7 +75,7 @@ describe('Folder repo is synced properly with main repo', () => {
   })
 
   it('does not pull if there are uncommitted changes', async () => {
-    expect.assertions(1)
+    expect.assertions(2)
     const testFilePath = path.resolve(
       folderRepoPath,
       folderPaths[0],
@@ -83,6 +86,7 @@ describe('Folder repo is synced properly with main repo', () => {
     try {
       await parseArgsAndExecute(folderRepoPath, ['pull'])
     } catch (e) {
+      expect(process.exit.calledWith(1)).toEqual(true)
       expect(e).toBe('Error: cannot pull with uncommitted changes')
     }
   })
