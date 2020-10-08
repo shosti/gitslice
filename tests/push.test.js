@@ -1,5 +1,5 @@
 const parseArgsAndExecute = require('../lib')
-const { CONFIG_FILENAME } = require('../lib/constants')
+const { CONFIG_FILENAME, DEFAULT_BRANCH } = require('../lib/constants')
 
 jest.mock('../lib/utils')
 const utils = require('../lib/utils')
@@ -277,10 +277,10 @@ describe('Main repo is synced properly with folder repo', () => {
     expect(await fs.exists(testFile2Path)).toBe(false)
   })
 
-  test('does not push if master branch is checked out', async () => {
+  test('does not push if default branch is checked out', async () => {
     expect.assertions(2)
-    await folderRepo.checkoutBranch('master')
-    await folderRepo.setHead(`refs/heads/master`)
+    await folderRepo.checkoutBranch(DEFAULT_BRANCH)
+    await folderRepo.setHead(`refs/heads/${DEFAULT_BRANCH}`)
 
     const branchName = 'test-branch-5'
     const commitMsg = 'random commit for testing'
@@ -290,7 +290,7 @@ describe('Main repo is synced properly with folder repo', () => {
     } catch (e) {
       expect(utils.pushTempRepo).not.toHaveBeenCalled()
       utils.pushTempRepo.mockReset()
-      expect(e).toBe('Error: cannot push from master branch')
+      expect(e).toBe('Error: cannot push from default branch')
     }
   })
   test('does not push if there are uncommitted changes', async () => {
@@ -323,7 +323,7 @@ describe('Main repo is synced properly with folder repo', () => {
     }
   })
 
-  test('properly pushes even if there are custom commits in the master', async () => {
+  test('properly pushes even if there are custom commits in the default branch', async () => {
     const branchName = 'test-branch-5'
     const commitMsg = 'added some files'
 
