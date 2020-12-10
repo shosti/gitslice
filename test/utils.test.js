@@ -17,6 +17,7 @@ const {
 const folderRepoRelativePath = './tmp/utils'
 const folderRepoPath = path.resolve(__dirname, folderRepoRelativePath)
 const before = require('./helpers/before')
+const { DEFAULT_BRANCH } = require('../lib/constants')
 
 const folderPaths = ['folder1', 'folder2'] // to be modified with the repo
 let folderRepo
@@ -51,8 +52,8 @@ describe('ensureArray', () => {
 })
 
 describe('getCurBranch', () => {
-  it('should return the master branch', async () => {
-    expect(await getCurBranch(folderRepo)).toBe('master')
+  it('should return the default branch', async () => {
+    expect(await getCurBranch(folderRepo)).toBe(DEFAULT_BRANCH)
   })
 
   it('should return current branch name after successful checkout', async () => {

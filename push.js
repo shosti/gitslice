@@ -12,6 +12,7 @@ const {
 const utils = require('../lib/utils')
 const parseArgsAndExecute = require('../lib')
 const before = require('./helpers/before')
+const { DEFAULT_BRANCH } = require('./lib/constants')
 
 const folderRepoRelativePath = './tmp/push'
 const folderRepoPath = path.resolve(__dirname, folderRepoRelativePath)
@@ -124,10 +125,10 @@ describe('Main repo is synced properly with folder repo', function() {
     expect(await fs.exists(testFile2Path)).toBe(false)
   })
 
-  it('does not push if master branch is checked out', async () => {
+  it('does not push if default branch is checked out', async () => {
     expect.assertions(2)
-    await folderRepo.checkoutBranch('master')
-    await folderRepo.setHead(`refs/heads/master`)
+    await folderRepo.checkoutBranch(DEFAULT_BRANCH)
+    await folderRepo.setHead(`refs/heads/${DEFAULT_BRANCH}`)
 
     const branchName = 'test-branch-5'
     const commitMsg = 'random commit for testing'
@@ -137,7 +138,7 @@ describe('Main repo is synced properly with folder repo', function() {
     } catch (e) {
       expect(pushTempRepo).not.toHaveBeenCalled()
       pushTempRepo.restore()
-      expect(e).toBe('Error: cannot push from master branch')
+      expect(e).toBe('Error: cannot push from default branch')
     }
   })
 
