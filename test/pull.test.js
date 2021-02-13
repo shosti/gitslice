@@ -16,7 +16,7 @@ const folderPathRegExp = new RegExp(folderPaths.join('|^'))
 let mainRepo
 let folderRepo
 
-beforeEach(async function() {
+beforeEach(async function () {
   this.timeout(10000)
   const { main, folder } = await before(folderRepoPath)
   mainRepo = main
@@ -30,21 +30,21 @@ describe('Folder repo is synced properly with main repo', () => {
   it('all unignored files are copied - check by counting', async () => {
     const filesToCopy = (await mainRepo.index())
       .entries()
-      .filter(x => folderPathRegExp.test(x.path))
+      .filter((x) => folderPathRegExp.test(x.path))
     const copiedFiles = (await folderRepo.index())
       .entries()
-      .filter(x => x.path !== '.gitignore')
+      .filter((x) => x.path !== '.gitignore')
     // excluding the config file
     expect(copiedFiles.length - 1).toBe(filesToCopy.length)
   })
   it('all unignored files are copied - check by name and file size', async () => {
     const filesToCopy = (await mainRepo.index())
       .entries()
-      .filter(x => folderPathRegExp.test(x.path))
+      .filter((x) => folderPathRegExp.test(x.path))
     const copiedFiles = (await folderRepo.index())
       .entries()
-      .filter(x => x.path !== '.gitignore')
-      .filter(x => x.path !== CONFIG_FILENAME)
+      .filter((x) => x.path !== '.gitignore')
+      .filter((x) => x.path !== CONFIG_FILENAME)
     expect(
       copiedFiles.map(({ fileSize, path }) => ({ fileSize, path }))
     ).toEqual(filesToCopy.map(({ fileSize, path }) => ({ fileSize, path })))
@@ -58,7 +58,8 @@ describe('Folder repo is synced properly with main repo', () => {
     await fs.remove(folderRepoPath)
   })
 
-  it('checkouts to the default branch before pulling', async () => {
+  it('checkouts to the default branch before pulling', async function () {
+    this.timeout(10000)
     let branchName = 'pull-test-branch'
     await folderRepo.createBranch(
       branchName,
@@ -71,7 +72,8 @@ describe('Folder repo is synced properly with main repo', () => {
     expect(await getCurBranch(folderRepo)).toBe(DEFAULT_BRANCH)
   })
 
-  it('does not pull if there are uncommitted changes', async () => {
+  it('does not pull if there are uncommitted changes', async function () {
+    this.timeout(10000)
     expect.assertions(1)
     const testFilePath = path.resolve(
       folderRepoPath,
