@@ -3,7 +3,8 @@ const fs = require('fs-extra')
 const {
   getTempRepoPath,
   copyFiles,
-  addCommmitMsgPrefix
+  cloneRepo,
+  addCommmitMsgPrefix,
 } = require('../../lib/utils')
 const { CONFIG_FILENAME } = require('../../lib/constants')
 
@@ -16,19 +17,27 @@ module.exports = async function before(folderRepoPath) {
     repoUrl: repoToClone,
     folders: folderPaths,
     branch: branchName,
-    ignore: [CONFIG_FILENAME]
+    ignore: [CONFIG_FILENAME],
   }
   const mainRepoPath = getTempRepoPath(repoToClone)
-  const mainRepo = await Git.Repository.open(mainRepoPath)
+  let mainRepo
+  try {
+    // Git repo exists so lets just update it
+    mainRepo = await Git.Repository.open(mainRepoPath)
+  } catch (e) {
+    // Git repo does not exits so lets clone it
+    mainRepo = await cloneRepo(repoToClone, mainRepoPath, branchName)
+  }
+
   const folderRepo = await Git.Repository.init(folderRepoPath, 0)
 
   await copyFiles(mainRepoPath, folderRepoPath, folderPaths, [CONFIG_FILENAME])
   await fs.writeJson(`${folderRepoPath}/${CONFIG_FILENAME}`, config, {
-    spaces: 2
+    spaces: 2,
   })
   const signature = folderRepo.defaultSignature()
   let index = await folderRepo.refreshIndex()
-  for (let addFilePath of (await folderRepo.getStatus()).map(file =>
+  for (let addFilePath of (await folderRepo.getStatus()).map((file) =>
     file.path()
   )) {
     await index.addByPath(addFilePath)
@@ -46,6 +55,6 @@ module.exports = async function before(folderRepoPath) {
 
   return {
     main: mainRepo,
-    folder: folderRepo
+    folder: folderRepo,
   }
 }
