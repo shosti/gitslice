@@ -54,7 +54,4 @@ jobs:
         run: npm install
 
       - name: Check code formatting
-        run: yarn format:check
-
-      - name: Lint code
-        run: yarn lint
+        run: npm run prettier:check

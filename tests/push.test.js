@@ -25,30 +25,28 @@ const {
   addCommmitMsgPrefix,
   removeCommitMsgPrefix,
   getCurBranch,
-  getTempRepoPath
+  getTempRepoPath,
 } = utils
 
 beforeAll(() => {
   mainRepoPath = getTempRepoPath(repoToClone)
 })
 
-beforeEach(async done => {
+beforeEach(async (done) => {
   jest.setTimeout(100000)
-  const initCmd = `init ${folderRepoRelativePath} --repo ${repoToClone} --folder ${
-    folderPaths[0]
-  } --folder ${folderPaths[1]} --branch ${branchName}`
+  const initCmd = `init ${folderRepoRelativePath} --repo ${repoToClone} --folder ${folderPaths[0]} --folder ${folderPaths[1]} --branch ${branchName}`
   await parseArgsAndExecute(__dirname, initCmd.split(' '))
   mainRepo = await Git.Repository.open(mainRepoPath)
   folderRepo = await Git.Repository.open(folderRepoPath)
   done()
 })
 
-afterEach(async done => {
+afterEach(async (done) => {
   await fs.remove(folderRepoPath)
   done()
 })
 
-afterAll(async done => {
+afterAll(async (done) => {
   await fs.remove(mainRepoPath)
   done()
 })
@@ -142,17 +140,17 @@ describe('Main repo is synced properly with folder repo', () => {
     )
     await folderRepo.checkoutBranch(branchName)
 
-    const testFile1 = (await fs.readdir(
-      path.resolve(folderRepoPath, folderPaths[0])
-    ))[0]
+    const testFile1 = (
+      await fs.readdir(path.resolve(folderRepoPath, folderPaths[0]))
+    )[0]
     const testFile1Path = path.resolve(
       folderRepoPath,
       folderPaths[0],
       testFile1
     )
-    const testFile2 = (await fs.readdir(
-      path.resolve(folderRepoPath, folderPaths[1])
-    ))[0]
+    const testFile2 = (
+      await fs.readdir(path.resolve(folderRepoPath, folderPaths[1]))
+    )[0]
     const testFile2Path = path.resolve(
       folderRepoPath,
       folderPaths[1],
