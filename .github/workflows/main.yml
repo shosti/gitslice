@@ -4,15 +4,15 @@ jobs:
   build-check:
     name: Build Check
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [10.16.0]
     steps:
       - uses: actions/checkout@master
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+      - name: Get Node.js version
+        id: nvm
+        run: echo ::set-output name=NODE_VERSION::$(cat .nvmrc)
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: ${{ steps.nvm.outputs.NODE_VERSION }}
       - name: NPM Install
         run: npm install
 
@@ -22,15 +22,15 @@ jobs:
   test-check:
     name: Tests Check
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [10.16.0]
     steps:
       - uses: actions/checkout@master
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+      - name: Get Node.js version
+        id: nvm
+        run: echo ::set-output name=NODE_VERSION::$(cat .nvmrc)
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: ${{ steps.nvm.outputs.NODE_VERSION }}
       - name: NPM Install
         run: npm install
 
