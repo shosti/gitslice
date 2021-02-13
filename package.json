@@ -6,7 +6,9 @@
   "scripts": {
     "test": "nyc mocha",
     "prettier":
-      "prettier --single-quote --write --no-semi '{bin,lib,tests,__{tests,mocks}__}/**/*.js'",
+      "prettier --write --single-quote --no-semi '{bin,lib,tests,__{tests,mocks}__}/**/*.js'",
+    "prettier:check":
+      "prettier --check --single-quote --no-semi '{bin,lib,tests,__{tests,mocks}__}/**/*.js'",
     "precommit": "lint-staged",
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov"
   },

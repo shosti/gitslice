@@ -1,0 +1,60 @@
+on: push
+name: GitSlice Main Checks
+jobs:
+  build-check:
+    name: Build Check
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [10.16.0]
+    steps:
+      - uses: actions/checkout@master
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: NPM Install
+        run: npm install
+
+      - name: Ensure Builds Pass
+        run: npm build
+
+  test-check:
+    name: Tests Check
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [10.16.0]
+    steps:
+      - uses: actions/checkout@master
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: NPM Install
+        run: npm install
+
+      - name: Ensure Tests Pass
+        run: npm test
+
+  linting-and-style:
+    name: Code style and lint
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [10.16.0]
+    steps:
+      - uses: actions/checkout@master
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: NPM Install
+        run: npm install
+
+      - name: Check code formatting
+        run: yarn format:check
+
+      - name: Lint code
+        run: yarn lint
