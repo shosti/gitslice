@@ -3,7 +3,7 @@ const path = require('path')
 const parseArgsAndExecute = require('../../lib')
 const { getTempRepoPath } = require('../../lib/utils')
 
-const repoToClone = 'https://github.com/murcul/git-slice.git'
+const repoToClone = 'https://github.com/GitStartHQ/git-slice.git'
 const folderPaths = ['bin', 'tests'] // to be modified with the repo
 const branchName = 'master'
 

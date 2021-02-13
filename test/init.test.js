@@ -8,7 +8,7 @@ const folderRepoRelativePath = './tmp/init'
 const folderRepoPath = path.resolve(__dirname, folderRepoRelativePath)
 const before = require('./helpers/before')
 
-const repoToClone = 'https://github.com/murcul/git-slice.git'
+const repoToClone = 'https://github.com/GitStartHQ/git-slice.git'
 const folderPaths = ['lib', 'bin'] // to be modified with the repo
 const folderPathRegExp = new RegExp(folderPaths.join('|^'))
 const branchName = 'master'
