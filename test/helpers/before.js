@@ -7,7 +7,7 @@ const {
 } = require('../../lib/utils')
 const { CONFIG_FILENAME } = require('../../lib/constants')
 
-const repoToClone = 'https://github.com/murcul/git-slice.git'
+const repoToClone = 'https://github.com/GitStartHQ/git-slice.git'
 const folderPaths = ['lib', 'bin'] // to be modified with the repo
 const branchName = 'master'
 

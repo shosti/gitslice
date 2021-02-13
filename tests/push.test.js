@@ -10,7 +10,7 @@ const fs = require('fs-extra')
 const folderRepoRelativePath = './tmp/push'
 const folderRepoPath = path.resolve(__dirname, folderRepoRelativePath)
 
-const repoToClone = 'https://github.com/murcul/git-slice.git'
+const repoToClone = 'https://github.com/GitStartHQ/git-slice.git'
 const folderPaths = ['bin', 'tests'] // to be modified with the repo
 const branchName = 'master'
 

@@ -22,7 +22,7 @@ let pushTempRepo
 let mainRepo
 let folderRepo
 
-const repoToClone = 'https://github.com/murcul/git-slice.git'
+const repoToClone = 'https://github.com/GitStartHQ/git-slice.git'
 const mainRepoPath = getTempRepoPath(repoToClone)
 const authorName = 'Murcul'
 const authorEmail = 'murcul@murcul.com'
