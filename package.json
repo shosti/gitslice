@@ -4,7 +4,6 @@
   "description": "",
   "main": "lib/index.js",
   "scripts": {
-    "build": "ncc build lib/cli.js -o bin",
     "test": "nyc mocha",
     "prettier": "prettier --write --single-quote --no-semi '{bin,lib,tests,__{tests,mocks}__}/**/*.js'",
     "prettier:check": "prettier --check --single-quote --no-semi '{bin,lib,tests,__{tests,mocks}__}/**/*.js'",
@@ -39,7 +38,6 @@
     "string-hash": "^1.1.3"
   },
   "devDependencies": {
-    "@vercel/ncc": "^0.27.0",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "codecov": "^3.6.1",
     "expect": "^24.9.0",
@@ -51,6 +49,6 @@
     "prettier": "2.2.1"
   },
   "engines": {
-    "node": "~12.2.0"
+    "node": "~10.16.0"
   }
 }
