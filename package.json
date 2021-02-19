@@ -14,7 +14,7 @@
   "author": "",
   "license": "MIT",
   "bin": {
-    "git-slice": "./bin/index.js"
+    "git-slice": "./bin/cli.js"
   },
   "lint-staged": {
     "*.{js,json,css,md}": [
@@ -51,6 +51,6 @@
     "prettier": "2.2.1"
   },
   "engines": {
-    "node": "~10.16.0"
+    "node": "~12.2.0"
   }
 }
