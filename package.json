@@ -17,7 +17,7 @@
   },
   "lint-staged": {
     "*.{js,json,css,md}": [
-      "yarn run prettier",
+      "npm run prettier",
       "git add"
     ]
   },
@@ -32,11 +32,10 @@
     "graphql-tag": "^2.10.1",
     "isomorphic-unfetch": "^3.0.0",
     "minimist": "^1.2.5",
-    "nodegit": "^0.24.1",
+    "nodegit": "^0.27.0",
     "readline-sync": "^1.4.9",
     "sinon": "^7.2.4",
-    "string-hash": "^1.1.3",
-    "yarn": "^1.13.0"
+    "string-hash": "^1.1.3"
   },
   "devDependencies": {
     "babel-plugin-transform-object-rest-spread": "^6.26.0",

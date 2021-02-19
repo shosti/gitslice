@@ -35,7 +35,7 @@ module.exports = async function before(folderRepoPath) {
   await fs.writeJson(`${folderRepoPath}/${CONFIG_FILENAME}`, config, {
     spaces: 2,
   })
-  const signature = folderRepo.defaultSignature()
+  const signature = await folderRepo.defaultSignature()
   let index = await folderRepo.refreshIndex()
   for (let addFilePath of (await folderRepo.getStatus()).map((file) =>
     file.path()
